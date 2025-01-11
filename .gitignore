@@ -58,10 +58,12 @@ __pycache__/
 *.env
 .env/
 
-# 가상환경
+# 가상환경 관련 파일
 venv/
 env/
 ENV/
+.venv/
+.VENV/
 
 # Jupyter Notebook 체크포인트
 .ipynb_checkpoints/
