@@ -12,6 +12,8 @@ public class GridArea : MonoBehaviour
     [HideInInspector]
     public int[] players;
 
+    public List<int> otherPos = new List<int>();
+
     public GameObject trueAgent;
 
     Camera m_AgentCam;
@@ -101,6 +103,8 @@ public class GridArea : MonoBehaviour
             numbers.Add(Random.Range(0, gridSize * gridSize));
         }
         var numbersA = numbers.ToArray();
+
+        otherPos.Clear();
 
         for (var i = 0; i < players.Length; i++)
         {

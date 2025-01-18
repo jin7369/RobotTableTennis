@@ -78,9 +78,12 @@ public class GridAgent : Agent
     {
         Array values = Enum.GetValues(typeof(GridGoal));
 
+        sensor.AddObservation(transform.position.x);
+        sensor.AddObservation(transform.position.z);
         if (m_GoalSensor is object)
         {
             int goalNum = (int)CurrentGoal;
+            
             m_GoalSensor.GetSensor().AddOneHotObservation(goalNum, values.Length);
         }
     }
