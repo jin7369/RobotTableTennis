@@ -30,6 +30,12 @@ TagManager:
   - purpleAgent
   - purpleGoal
   - tile
+  - RacketBody
+  - RacketHead
+  - Table
+  - Net
+  - Ball
+  - Floor
   layers:
   - Default
   - TransparentFX
