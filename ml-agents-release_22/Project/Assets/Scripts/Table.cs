@@ -5,9 +5,17 @@ using UnityEngine;
 public class Table : MonoBehaviour
 {
     public bool isTouchable;
+    public bool flag;
+    void Start() {
+        flag = isTouchable;
+    }
     void OnCollisionExit(Collision collision) {
         if (collision.gameObject.tag == "Ball") {
-            isTouchable = false;
+            flag = false;
         }
+    }
+
+    public void Reset() {
+        flag = isTouchable;
     }
 }

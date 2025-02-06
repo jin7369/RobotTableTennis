@@ -6,31 +6,25 @@ using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using System.IO;
 
-public enum RotationDirection { None = 0, Positive = 1, Negative = -1 };
 
 public class ArticulationJointController : MonoBehaviour
 {
-    public RotationDirection rotationState = RotationDirection.None;
-    public float speed = 300.0f;
-
     public ArticulationBody articulation;
+    public float rotationGoal = 0;
 
 
+    Quaternion startRotation;
 
     void Start()
     {
         articulation = GetComponent<ArticulationBody>();
+        startRotation = transform.rotation;
+        rotationGoal = 0;
     }
 
     void FixedUpdate() 
     {
-        if (rotationState != RotationDirection.None) {
-            float rotationChange = (float)rotationState * speed * Time.fixedDeltaTime;
-            float rotationGoal = CurrentPrimaryAxisRotation() + rotationChange;
-            RotateTo(rotationGoal);
-        }
-
-
+        RotateTo(rotationGoal);
     }
 
 
@@ -51,14 +45,13 @@ public class ArticulationJointController : MonoBehaviour
     }
 
     public void Reset() {
-        var drive = articulation.xDrive;
-        drive.driveType = ArticulationDriveType.Target;
-        drive.target = 0;
-        articulation.xDrive = drive;
-
-        drive = articulation.xDrive;
-        drive.driveType = ArticulationDriveType.Force;
-        articulation.xDrive = drive;
+        transform.rotation = startRotation;
+    }
+    public void SetAngle(float rotationGoal) {
+        this.rotationGoal = rotationGoal;
+    }
+    public float GetRotationValue() {
+        return articulation.jointPosition[0];
     }
 
 
