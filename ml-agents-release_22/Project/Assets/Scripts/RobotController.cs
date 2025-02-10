@@ -1,15 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.MLAgents;
-using Unity.MLAgents.Actuators;
-using Unity.MLAgents.Sensors;
 using UnityEngine.InputSystem;
-public class RobotController : Agent
+using UnityEngine.UI;
+public class RobotController : MonoBehaviour
 {
-    public GameObject ball;
-    Rigidbody m_BallRb;
-    EnvironmentParameters m_ResetParams;
     [System.Serializable]
     public struct Joint
     {
@@ -17,52 +12,33 @@ public class RobotController : Agent
         public GameObject robotPart;
     }
     public Joint[] joints;
+    ArticulationJointController[] jointControllers;
+    public GameObject jointSliderObject;
+    public GameObject angleSliderObject;
+    private Slider jointSlider;
+    private Slider angleSlider;
 
 
-    public override void Initialize() {
-        m_BallRb = ball.GetComponent<Rigidbody>();
-        m_ResetParams = Academy.Instance.EnvironmentParameters;
-        //SetResetParameters();
-    }
-
-    public override void CollectObservations(VectorSensor sensor)
-    {
-        sensor.AddObservation(ball.transform.position - gameObject.transform.position);
-        sensor.AddObservation(m_BallRb.velocity);
-        sensor.AddObservation(m_BallRb.angularVelocity);
-        for (int i = 0; i < joints.Length; i++)
-        {
-            GameObject robotPart = joints[i].robotPart;
-            sensor.AddObservation(robotPart.GetComponent<ArticulationJointController>().GetRotationValue());
-        }
-    }
-
-    public override void OnActionReceived(ActionBuffers actionBuffers)
-    {
+    void Start() {
+        jointControllers = new ArticulationJointController[joints.Length];
         for (int i = 0; i < joints.Length; i++) {
-            GameObject robotPart = joints[i].robotPart;
-            var angle =  90.0f *actionBuffers.ContinuousActions[i];
-            robotPart.GetComponent<ArticulationJointController>().SetAngle(angle);
+            jointControllers[i] = joints[i].robotPart.GetComponent<ArticulationJointController>();
         }
+        jointSlider = jointSliderObject.GetComponent<Slider>();
+        angleSlider = angleSliderObject.GetComponent<Slider>();
+        jointSlider.maxValue = joints.Length - 1;
     }
-
-    public override void OnEpisodeBegin()
-    {
+    public void Reset() {
         for (int i = 0; i < joints.Length; i++) {
-            GameObject robotPart = joints[i].robotPart;
-            robotPart.GetComponent<ArticulationJointController>().Reset();
+            jointControllers[i].Reset();
         }
-        ball.GetComponent<BallScript>().Reset();
     }
 
-    public override void Heuristic(in ActionBuffers actionsOut)
-    {
-        var continuousActionsOut = actionsOut.ContinuousActions;
-        if(Input.GetKey(KeyCode.Q)) {
-            continuousActionsOut[0] = 1f;
-        }
-        else if(Input.GetKey(KeyCode.A)) {
-            continuousActionsOut[0] = -1f;
-        }
+    public void Control(int jointNum, float angle) {
+        jointControllers[jointNum].SetAngle(angle);
+    }
+
+    public void Renew() {
+        Control((int)jointSlider.value, angleSlider.value);
     }
 }
