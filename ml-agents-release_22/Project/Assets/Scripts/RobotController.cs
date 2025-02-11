@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.InputSystem;
+﻿using UnityEngine;
 using UnityEngine.UI;
 public class RobotController : MonoBehaviour
 {
@@ -15,6 +12,7 @@ public class RobotController : MonoBehaviour
     ArticulationJointController[] jointControllers;
     public GameObject jointSliderObject;
     public GameObject angleSliderObject;
+    public GameObject ballObject;
     private Slider jointSlider;
     private Slider angleSlider;
 
@@ -32,13 +30,20 @@ public class RobotController : MonoBehaviour
         for (int i = 0; i < joints.Length; i++) {
             jointControllers[i].Reset();
         }
+        angleSlider.value = 0;
+        jointSlider.value = 0;
     }
 
     public void Control(int jointNum, float angle) {
         jointControllers[jointNum].SetAngle(angle);
     }
-
     public void Renew() {
         Control((int)jointSlider.value, angleSlider.value);
+        foreach (ArticulationJointController j in jointControllers) {
+            float[] value = j.GetState();
+            foreach(float a in value) {
+                Debug.Log(a);
+            }
+        } 
     }
 }
