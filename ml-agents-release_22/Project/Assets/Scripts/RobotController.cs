@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 public class RobotController : MonoBehaviour
 {
@@ -12,7 +12,6 @@ public class RobotController : MonoBehaviour
     ArticulationJointController[] jointControllers;
     public GameObject jointSliderObject;
     public GameObject angleSliderObject;
-    public GameObject ballObject;
     private Slider jointSlider;
     private Slider angleSlider;
 
@@ -39,11 +38,5 @@ public class RobotController : MonoBehaviour
     }
     public void Renew() {
         Control((int)jointSlider.value, angleSlider.value);
-        foreach (ArticulationJointController j in jointControllers) {
-            float[] value = j.GetState();
-            foreach(float a in value) {
-                Debug.Log(a);
-            }
-        } 
     }
 }
