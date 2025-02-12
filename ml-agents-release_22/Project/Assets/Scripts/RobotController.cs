@@ -2,6 +2,20 @@ using UnityEngine;
 using UnityEngine.UI;
 public class RobotController : MonoBehaviour
 {
+    // UI Controller
+    public GameObject targetPositionController;
+    public GameObject jointSelector;
+    public GameObject targetVelocityController;
+
+    Slider targetPositionSlider;
+    Slider jointSelectSlider;
+    Slider targetVelocitySlider;
+
+    // Constants
+    public float damping;
+    public float stiffness;
+
+
     [System.Serializable]
     public struct Joint
     {
@@ -10,33 +24,55 @@ public class RobotController : MonoBehaviour
     }
     public Joint[] joints;
     ArticulationJointController[] jointControllers;
-    public GameObject jointSliderObject;
-    public GameObject angleSliderObject;
-    private Slider jointSlider;
-    private Slider angleSlider;
-
-
     void Start() {
+        targetPositionSlider = targetPositionController.GetComponent<Slider>();
+        jointSelectSlider = jointSelector.GetComponent<Slider>();
+        targetVelocitySlider = targetVelocityController.GetComponent<Slider>();
+        jointSelectSlider.maxValue = joints.Length - 1;
+
+
         jointControllers = new ArticulationJointController[joints.Length];
         for (int i = 0; i < joints.Length; i++) {
             jointControllers[i] = joints[i].robotPart.GetComponent<ArticulationJointController>();
         }
-        jointSlider = jointSliderObject.GetComponent<Slider>();
-        angleSlider = angleSliderObject.GetComponent<Slider>();
-        jointSlider.maxValue = joints.Length - 1;
+
     }
     public void Reset() {
         for (int i = 0; i < joints.Length; i++) {
             jointControllers[i].Reset();
         }
-        angleSlider.value = 0;
-        jointSlider.value = 0;
+        targetPositionSlider.value = 0;
+        targetVelocitySlider.value = 0;
+        jointSelectSlider.value = 0;
     }
 
-    public void Control(int jointNum, float angle) {
-        jointControllers[jointNum].SetAngle(angle);
+    public void ControlTargetPosition(int jointNum, float targetPosition) {
+        jointControllers[jointNum].SetTargetPosition(targetPosition);
     }
+    public void ControlTargetVelocity(int jointNum, float targetVelocity) {
+        jointControllers[jointNum].SetTargetVelocity(targetVelocity);
+    }
+    public void ControlStiffness(float stiffness) {
+        this.stiffness = stiffness;
+        for (int i = 0; i < joints.Length; i++) {
+            jointControllers[i].SetStiffness(stiffness);
+        }
+    }
+    public void ControlDamping(float damping) {
+        this.damping = damping;
+        for(int i = 0; i < joints.Length; i++) {
+            jointControllers[i].SetDamping(damping);
+        }
+    }
+
     public void Renew() {
-        Control((int)jointSlider.value, angleSlider.value);
+        int selectedJoint = (int)jointSelectSlider.value;
+        float targetPosition = targetPositionSlider.value;
+        float targetVelocity = targetVelocitySlider.value;
+        
+        ControlTargetPosition(selectedJoint, targetPosition);
+        ControlTargetVelocity(selectedJoint, targetVelocity);
+        ControlStiffness(stiffness);
+        ControlDamping(damping);
     }
 }

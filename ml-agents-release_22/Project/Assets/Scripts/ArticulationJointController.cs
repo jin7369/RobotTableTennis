@@ -17,14 +17,29 @@ public class ArticulationJointController : MonoBehaviour
     }
 
     public void Reset() {
-        SetAngle(0f);
+        SetTargetPosition(0f);
         articulation.jointPosition = new ArticulationReducedSpace(0f);
         articulation.jointForce = new ArticulationReducedSpace(0f);
         articulation.jointVelocity = new ArticulationReducedSpace(0f);
     }
-    public void SetAngle(float rotationGoal) {
+    public void SetTargetPosition(float targetPosition) {
         var drive = articulation.xDrive;
-        drive.target = rotationGoal;
+        drive.target = targetPosition;
+        articulation.xDrive = drive;
+    }
+    public void SetTargetVelocity(float targetVelocity) {
+        var drive = articulation.xDrive;
+        drive.targetVelocity = targetVelocity;
+        articulation.xDrive = drive;
+    }
+    public void SetDamping(float damping) {
+        var drive = articulation.xDrive;
+        drive.damping = damping;
+        articulation.xDrive = drive;
+    }
+    public void SetStiffness(float stiffness) {
+        var drive = articulation.xDrive;
+        drive.stiffness = stiffness;
         articulation.xDrive = drive;
     }
     public float[] GetState() {
