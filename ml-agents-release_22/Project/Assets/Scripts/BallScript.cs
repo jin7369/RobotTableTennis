@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +12,7 @@ public class BallScript : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         startPosition = transform.position;
         rb.velocity = Vector3.zero;
+        Debug.Log(GetState().Count);
     }
     public void Reset()
     {
@@ -25,6 +25,43 @@ public class BallScript : MonoBehaviour
     }
     void OnTriggerEnter(Collider other)
     {
-        ResetManager.Instance.Reset();   
+        if (TableTennisAgent.Instance != null) {
+            if (other.CompareTag("Goal")) {
+                TableTennisAgent.Instance.AddReward(10.0f);
+            }
+            else {
+                TableTennisAgent.Instance.AddReward(-5.0f);
+            }
+        }
+        ResetManager.Instance.Reset(); 
+    }
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("RacketHead")) {
+            if (TableTennisAgent.Instance != null) {
+                TableTennisAgent.Instance.AddReward(5.0f);
+            }
+        }
+        else {
+            if (TableTennisAgent.Instance != null) {
+                TableTennisAgent.Instance.AddReward(-10.0f);
+            }
+            ResetManager.Instance.Reset();
+        }
+    }
+    public List<float> GetState() {
+        List<float> state = new List<float>
+        {
+            transform.position.x,
+            transform.position.y,
+            transform.position.z,
+            rb.velocity.x,
+            rb.velocity.y,
+            rb.velocity.z,
+            rb.angularVelocity.x,
+            rb.angularVelocity.y,
+            rb.angularVelocity.z
+        };
+        return state;
     }
 }
