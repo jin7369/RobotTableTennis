@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/MyScene/TableTennis.unity
-    guid: bd8892d658dc55c42a88a4fd4fd695d7
+    path: Assets/MyScene/ShootToTarget.unity
+    guid: 36d7d71e68e7ab347a51b311d8ba6efd
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.MLAgents;
 using UnityEngine;
 
 public class BallScript : MonoBehaviour
@@ -23,30 +24,24 @@ public class BallScript : MonoBehaviour
     public void Push() {
         rb.AddForce(Vector3.forward);
     }
-    void OnTriggerEnter(Collider other)
-    {
-        if (TableTennisAgent.Instance != null) {
-            if (other.CompareTag("Goal")) {
-                TableTennisAgent.Instance.AddReward(10.0f);
-            }
-            else {
-                TableTennisAgent.Instance.AddReward(-5.0f);
-            }
-        }
-        ResetManager.Instance.Reset(); 
-    }
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("RacketHead")) {
             if (TableTennisAgent.Instance != null) {
-                TableTennisAgent.Instance.AddReward(5.0f);
+                TableTennisAgent.Instance.AddReward(3.0f);
+            }
+        }
+        else if (collision.gameObject.CompareTag("Goal")) {
+            if (TableTennisAgent.Instance != null) {
+                TableTennisAgent.Instance.AddReward(20.0f);
+                TableTennisAgent.Instance.EndEpisode();
             }
         }
         else {
             if (TableTennisAgent.Instance != null) {
                 TableTennisAgent.Instance.AddReward(-10.0f);
+                TableTennisAgent.Instance.EndEpisode();
             }
-            ResetManager.Instance.Reset();
         }
     }
     public List<float> GetState() {
@@ -63,5 +58,15 @@ public class BallScript : MonoBehaviour
             rb.angularVelocity.z
         };
         return state;
+    }
+
+    void Update()
+    {
+        if (Vector3.Distance(startPosition, transform.position) > 10) {
+            if (TableTennisAgent.Instance != null) {
+                TableTennisAgent.Instance.AddReward(-10.0f);
+                TableTennisAgent.Instance.EndEpisode();
+            }
+        }
     }
 }
