@@ -55,7 +55,7 @@ public class BallScript : MonoBehaviour
             rb.velocity.z,
             rb.angularVelocity.x,
             rb.angularVelocity.y,
-            rb.angularVelocity.z
+            rb.angularVelocity.z,
         };
         return state;
     }
