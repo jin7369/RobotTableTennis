@@ -37,6 +37,7 @@ TagManager:
   - Ball
   - Floor
   - Goal
+  - Target
   layers:
   - Default
   - TransparentFX
