@@ -44,6 +44,7 @@ public class Target : MonoBehaviour
                 nextTarget.Activate();
             }
             else {
+                TableTennisAgent.Instance.AddReward(20.0f);
                 TableTennisAgent.Instance.EndEpisode();
             }
         }
