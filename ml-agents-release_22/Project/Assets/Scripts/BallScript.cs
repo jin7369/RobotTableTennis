@@ -38,7 +38,10 @@ public class BallScript : MonoBehaviour
             }
         }
         else if (collision.gameObject.CompareTag("Target")) {
-            
+            if (TableTennisAgent.Instance != null) {
+                collision.gameObject.GetComponent<Target>().CollisionCheck();
+                TableTennisAgent.Instance.AddReward(15.0f);
+            }
         }
         else {
             if (TableTennisAgent.Instance != null) {

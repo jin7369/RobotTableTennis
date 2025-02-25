@@ -6,8 +6,8 @@ using UnityEngine;
 
 public class Target : MonoBehaviour
 {
-    Boolean originState;
-    public Boolean isTarget;
+    public bool originState;
+    public bool isTarget;
     public GameObject nextTargetObj;
     Target nextTarget;
     public Material targetMat;
@@ -15,6 +15,7 @@ public class Target : MonoBehaviour
     MeshRenderer mesh;
     void Start()
     {
+        Debug.Log("Start!");
         originState = isTarget;
         if (nextTargetObj != null) {
             nextTarget = nextTargetObj.GetComponent<Target>();
@@ -34,26 +35,18 @@ public class Target : MonoBehaviour
     void SetTag() {
         gameObject.tag = isTarget ? ("Target") : ("Untagged");
     }
-    void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Ball")) {
-            if (isTarget) {
-                isTarget = false;
-                TableTennisAgent.Instance.AddReward(10.0f);
-                if (nextTargetObj != null) {
-                    nextTarget.Activate();
-                }
-                else {
-                    TableTennisAgent.Instance.EndEpisode();
-                }
+    public void CollisionCheck() {
+        if (isTarget) {
+            isTarget = false;
+            SetTag();
+            SetMaterial();
+            if(nextTargetObj != null) {
+                nextTarget.Activate();
             }
             else {
-                TableTennisAgent.Instance.AddReward(-10.0f);
                 TableTennisAgent.Instance.EndEpisode();
             }
-            SetMaterial();
-            SetTag();
-        }   
+        }
     }
     public void Reset()
     {
