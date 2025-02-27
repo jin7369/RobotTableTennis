@@ -45,7 +45,7 @@ public class BallScript : MonoBehaviour
         }
         else {
             if (TableTennisAgent.Instance != null) {
-                TableTennisAgent.Instance.AddReward(-10.0f);
+                TableTennisAgent.Instance.AddReward(-20.0f);
                 TableTennisAgent.Instance.EndEpisode();
             }
         }
