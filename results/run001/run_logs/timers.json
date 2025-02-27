@@ -1,0 +1,47 @@
+{
+    "name": "root",
+    "metadata": {
+        "timer_format_version": "0.1.0",
+        "start_time_seconds": "1739704157",
+        "python_version": "3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]",
+        "command_line_arguments": "C:\\Users\\USER\\Desktop\\MLAgent\\venv\\Scripts\\mlagents-learn .\\ml-agents-release_22\\config\\ppo\\TableTennis.yaml --env=env\\ShootToTarget.exe --run-id=run001",
+        "mlagents_version": "1.1.0",
+        "mlagents_envs_version": "1.1.0",
+        "communication_protocol_version": "1.5.0",
+        "pytorch_version": "2.6.0+cpu",
+        "numpy_version": "1.23.5",
+        "end_time_seconds": "1739704204"
+    },
+    "total": 47.78929519999997,
+    "count": 1,
+    "self": 10.004515899999888,
+    "children": {
+        "run_training.setup": {
+            "total": 0.09694960000001629,
+            "count": 1,
+            "self": 0.09694960000001629
+        },
+        "TrainerController.start_learning": {
+            "total": 37.687829700000066,
+            "count": 1,
+            "self": 0.0004166999999597465,
+            "children": {
+                "TrainerController._reset_env": {
+                    "total": 37.68740360000015,
+                    "count": 1,
+                    "self": 37.68740360000015
+                },
+                "trainer_threads": {
+                    "total": 1.0999999631167157e-06,
+                    "count": 1,
+                    "self": 1.0999999631167157e-06
+                },
+                "TrainerController._save_models": {
+                    "total": 8.299999990413198e-06,
+                    "count": 1,
+                    "self": 8.299999990413198e-06
+                }
+            }
+        }
+    }
+}
