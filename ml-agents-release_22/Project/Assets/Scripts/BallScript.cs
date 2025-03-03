@@ -1,15 +1,21 @@
+using System;
 using System.Collections.Generic;
 using Unity.MLAgents;
 using UnityEngine;
 
 public class BallScript : MonoBehaviour
 {
-
     // Start is called before the first frame update
     Vector3 startPosition;
     Rigidbody rb;
+    public GameObject targetManagerObj;
+    TargetManager targetManager;
+    public GameObject agentObj;
+    TableTennisAgent agent;
     void Start()
     {
+        agent = agentObj.GetComponent<TableTennisAgent>();
+        targetManager = targetManagerObj.GetComponent<TargetManager>();
         rb = GetComponent<Rigidbody>();
         startPosition = transform.position;
         rb.velocity = Vector3.zero;
@@ -21,33 +27,19 @@ public class BallScript : MonoBehaviour
         transform.position = startPosition;
         rb.velocity = Vector3.zero;
     }
-    public void Push() {
-        rb.AddForce(Vector3.forward);
-    }
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("RacketHead")) {
-            if (TableTennisAgent.Instance != null) {
-                TableTennisAgent.Instance.AddReward(3.0f);
-            }
-        }
-        else if (collision.gameObject.CompareTag("Goal")) {
-            if (TableTennisAgent.Instance != null) {
-                TableTennisAgent.Instance.AddReward(20.0f);
-                TableTennisAgent.Instance.EndEpisode();
-            }
+
         }
         else if (collision.gameObject.CompareTag("Target")) {
-            if (TableTennisAgent.Instance != null) {
-                collision.gameObject.GetComponent<Target>().CollisionCheck();
-                TableTennisAgent.Instance.AddReward(15.0f);
-            }
+            targetManager.ActivateNextTarget();
+        }
+        else if (collision.gameObject.CompareTag("Goal")) {
+            agent.EndEpisode();
         }
         else {
-            if (TableTennisAgent.Instance != null) {
-                TableTennisAgent.Instance.AddReward(-20.0f);
-                TableTennisAgent.Instance.EndEpisode();
-            }
+            agent.EndEpisode();
         }
     }
     public List<float> GetState() {

@@ -5,25 +5,26 @@ public class ResetManager : MonoBehaviour
     static ResetManager instance = null;
     public GameObject ball;
     public GameObject arm;
-    public GameObject targetObj;
-    Target target;
-    RobotController rc;
-    BallScript bs;
+    public GameObject targetManagerObj;
+
+    TargetManager targetManager;
+    RobotController robotController;
+    BallScript ballScript;
     void Awake()
     {
         instance = this;
     }
     void Start()
     {
-        rc = arm.GetComponent<RobotController>();
-        bs = ball.GetComponent<BallScript>();
-        target = targetObj.GetComponent<Target>();
+        robotController = arm.GetComponent<RobotController>();
+        ballScript = ball.GetComponent<BallScript>();
+        targetManager = targetManagerObj.GetComponent<TargetManager>();
     }
     public void Reset()
     {
-        rc.Reset();
-        bs.Reset();
-        target.Reset();
+        robotController.Reset();
+        ballScript.Reset();
+        targetManager.Reset();
     }
 
     public static ResetManager Instance
