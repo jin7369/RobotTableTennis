@@ -16,13 +16,12 @@ public class RobotController : MonoBehaviour
     }
     public Joint[] joints;
     ArticulationJointController[] jointControllers;
+    
     void Start() {
         jointControllers = new ArticulationJointController[joints.Length];
         for (int i = 0; i < joints.Length; i++) {
             jointControllers[i] = joints[i].robotPart.GetComponent<ArticulationJointController>();
         }
-        SetStiffness(stiffness);
-        SetDamping(damping);
     }
     public void Reset() {
         for (int i = 0; i < joints.Length; i++) {
@@ -32,21 +31,6 @@ public class RobotController : MonoBehaviour
 
     public void ControlTargetPosition(int jointNum, float targetPosition) {
         jointControllers[jointNum].SetTargetPosition(targetPosition);
-    }
-    public void SetTargetVelocity(int jointNum, float targetVelocity) {
-        jointControllers[jointNum].SetTargetVelocity(targetVelocity);
-    }
-    public void SetStiffness(float stiffness) {
-        this.stiffness = stiffness;
-        for (int i = 0; i < joints.Length; i++) {
-            jointControllers[i].SetStiffness(stiffness);
-        }
-    }
-    public void SetDamping(float damping) {
-        this.damping = damping;
-        for(int i = 0; i < joints.Length; i++) {
-            jointControllers[i].SetDamping(damping);
-        }
     }
 
     public List<float> GetState() {

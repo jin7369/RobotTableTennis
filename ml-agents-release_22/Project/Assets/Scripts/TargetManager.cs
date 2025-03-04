@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class TargetManager : MonoBehaviour
 {
+    [System.Serializable]
+    class Target {
+        public float reward;
+        public bool endEpisode;
+        public GameObject targetObj;
+    }
     public GameObject[] targetObjs;
     ActivatableObject[] targets;
     int currentTarget;

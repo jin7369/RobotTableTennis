@@ -49,7 +49,7 @@ public class TableTennisAgent : Agent
     public override void OnActionReceived(ActionBuffers actions)
     {
         for (int i = 0; i < actions.ContinuousActions.Length; i++) {
-            var action = 180 * Mathf.Clamp(actions.ContinuousActions[i], -1f, 1f);
+            var action = Mathf.Clamp(actions.ContinuousActions[i], -1f, 1f);
             robotController.ControlTargetPosition(i, action);
         }
     }

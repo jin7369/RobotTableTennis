@@ -12,6 +12,7 @@ public class BallScript : MonoBehaviour
     TargetManager targetManager;
     public GameObject agentObj;
     TableTennisAgent agent;
+    
     void Start()
     {
         agent = agentObj.GetComponent<TableTennisAgent>();
@@ -29,18 +30,7 @@ public class BallScript : MonoBehaviour
     }
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("RacketHead")) {
-
-        }
-        else if (collision.gameObject.CompareTag("Target")) {
-            targetManager.ActivateNextTarget();
-        }
-        else if (collision.gameObject.CompareTag("Goal")) {
-            agent.EndEpisode();
-        }
-        else {
-            agent.EndEpisode();
-        }
+        
     }
     public List<float> GetState() {
         List<float> state = new List<float>
