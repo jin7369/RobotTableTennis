@@ -1528,6 +1528,12 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &622958687 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3177079308189960913, guid: 06abec52487af4f408c26dc1ef9fa3c9,
+    type: 3}
+  m_PrefabInstance: {fileID: 1448537100}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &875668761
 GameObject:
   m_ObjectHideFlags: 0
@@ -2562,7 +2568,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetManagerObj: {fileID: 254610986}
-  agentObj: {fileID: 1235530882}
+  netObj: {fileID: 622958687}
+  serverObj: {fileID: 78978172}
+  receiverObj: {fileID: 875668761}
 --- !u!1 &1074200545 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4645990401397541427, guid: db64a05314b436345959222b151c69a8,

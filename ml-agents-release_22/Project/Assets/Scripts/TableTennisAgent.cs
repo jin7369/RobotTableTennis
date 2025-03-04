@@ -6,23 +6,25 @@ using Unity.MLAgents.Sensors;
 
 public class TableTennisAgent : Agent
 {
+    /*
+    에이전트가 해야할 일
+
+    공과 로봇으로 부터 각 상태를 알아내야 한다.
+
+    정책으로 인해 결정된 판단으로 로봇을 제어해야 한다.
+
+    - 인자 
+    공
+    로봇
+    
+    */
     public GameObject ball;
     public GameObject robot;
 
     RobotController robotController;
     BallScript ballScript;
-
-    public static TableTennisAgent Instance
-    {
-        get;
-        private set;
-    }
-    
     public override void Initialize()
     {
-        if (Instance == null) {
-            Instance = this;
-        }
         ballScript = ball.GetComponent<BallScript>();
         robotController = robot.GetComponent<RobotController>();
     }

@@ -5,7 +5,7 @@
 public class ArticulationJointController : MonoBehaviour
 {
     public float scaleValue;
-    public ArticulationBody articulation;
+    ArticulationBody articulation;
     void Start()
     {
         articulation = GetComponent<ArticulationBody>();

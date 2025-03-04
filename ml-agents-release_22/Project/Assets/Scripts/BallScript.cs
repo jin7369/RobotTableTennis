@@ -5,18 +5,21 @@ using UnityEngine;
 
 public class BallScript : MonoBehaviour
 {
-    // Start is called before the first frame update
+    /*
+    공이 해야할 일
+    자신의 현재 위치, 각속도, 속도를 인지하고 원할 때 반환이 가능해야 한다.
+
+    어떠한 물체와 부딪혔을 때 그것을 전달 해야한다.
+
+    인자
+    Env Manager : 
+    공의 충돌 상태를 확인하고 에이전트에 보상을 준다
+
+    */
     Vector3 startPosition;
     Rigidbody rb;
-    public GameObject targetManagerObj;
-    TargetManager targetManager;
-    public GameObject agentObj;
-    TableTennisAgent agent;
-    
     void Start()
     {
-        agent = agentObj.GetComponent<TableTennisAgent>();
-        targetManager = targetManagerObj.GetComponent<TargetManager>();
         rb = GetComponent<Rigidbody>();
         startPosition = transform.position;
         rb.velocity = Vector3.zero;
@@ -46,15 +49,5 @@ public class BallScript : MonoBehaviour
             rb.angularVelocity.z,
         };
         return state;
-    }
-
-    void Update()
-    {
-        if (Vector3.Distance(startPosition, transform.position) > 10) {
-            if (TableTennisAgent.Instance != null) {
-                TableTennisAgent.Instance.AddReward(-10.0f);
-                TableTennisAgent.Instance.EndEpisode();
-            }
-        }
     }
 }
