@@ -24,10 +24,14 @@ public class TableTennisAgent : Agent
 
     RobotController robotController;
     BallScript ballScript;
+    public static Action endEpisode;
     public override void Initialize()
     {
         ballScript = ball.GetComponent<BallScript>();
         robotController = robot.GetComponent<RobotController>();
+        endEpisode = () => {
+            EndEpisode();
+        };
     }
 
     public override void OnEpisodeBegin()
@@ -49,19 +53,11 @@ public class TableTennisAgent : Agent
             sensor.AddObservation(value);
         }
     }
-
     public override void OnActionReceived(ActionBuffers actions)
     {
         for (int i = 0; i < actions.ContinuousActions.Length; i++) {
             var action = Mathf.Clamp(actions.ContinuousActions[i], -1f, 1f);
             robotController.ControlTargetPosition(i, action);
         }
-    }
-    public override void Heuristic(in ActionBuffers actionsOut)
-    {
-        var continuousActions = actionsOut.ContinuousActions;
-
-        continuousActions[0] = Input.GetKey(KeyCode.LeftArrow) ? -1f : (Input.GetKey(KeyCode.RightArrow) ? 1f : 0f);
-        continuousActions[1] = Input.GetKey(KeyCode.UpArrow) ? 1f : (Input.GetKey(KeyCode.DownArrow) ? -1f : 0f);
     }
 }

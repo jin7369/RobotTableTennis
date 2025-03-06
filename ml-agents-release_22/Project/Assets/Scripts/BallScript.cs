@@ -17,27 +17,12 @@ public class BallScript : MonoBehaviour
 
     */
 
-    // 에이전트
-    public GameObject agentObj;
-    TableTennisAgent agent;
-
-
-    // 타겟
-    [System.Serializable]
-    public struct TargetContainer {
-        public GameObject[] targetObjs;
-        public float reward;
-        public bool endEpisode;
-        public Material originMaterial;
-    }
-    public Material targetMaterial;
-    public TargetContainer[] targets;
-    int count;
-
     // 공 관련 
     Vector3 startPosition;
     Rigidbody rb;
 
+    public GameObject envManagerObj;
+    EnvManager env;
 
     void Start()
     {
@@ -45,65 +30,17 @@ public class BallScript : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         startPosition = transform.position;
         rb.velocity = Vector3.zero;
-
-
-        // 타겟 관련
-        count = -1;
-
-        // 에이전트 관련
-        agent = agentObj.GetComponent<TableTennisAgent>();
+        env = envManagerObj.GetComponent<EnvManager>();
     }
     public void Reset()
     {
         transform.position = Vector3.zero;
         transform.position = startPosition;
         rb.velocity = Vector3.zero;
-        count = -1;
     }
     void OnCollisionEnter(Collision collision)
     {
-        if (count < 0) {
-            if (collision.gameObject.CompareTag("RacketHead")) {
-                agent.AddReward(3.0f);
-                count++;
-                ActivateTarget(count);
-            }
-            else {
-                agent.AddReward(-10.0f);
-                agent.EndEpisode();
-            }
-        }
-        if (count > -1 && count < targets.Length) {
-            bool targetTouched = false;
-            for (int i = 0; i < targets[count].targetObjs.Length; i++) {
-                if (ReferenceEquals(targets[count].targetObjs[i], collision.gameObject)) 
-                {
-                    targetTouched = true; 
-                    break;
-                }
-            }
-            if (targetTouched) {
-                agent.AddReward(targets[count].reward);
-                if (targets[count].endEpisode) agent.EndEpisode();
-                DeactivateTarget(count);
-                count++;
-                ActivateTarget(count);
-            }
-            else {
-                agent.AddReward(-10.0f);
-                agent.EndEpisode();
-            }
-        }
-    }
-    void ActivateTarget(int targetNum) {
-        for (int i = 0; i < targets[targetNum].targetObjs.Length; i++) {
-            targets[targetNum].targetObjs[i].GetComponent<MeshRenderer>().material = targetMaterial;
-        }
-    }
-    void DeactivateTarget(int targetNum) {
-        for (int i = 0; i < targets[targetNum].targetObjs.Length; i++) {
-            targets[targetNum].targetObjs[i].GetComponent<MeshRenderer>().material = targets[targetNum].originMaterial;
-        }
+        env.BallCollideWith(collision.gameObject);
     }
     public List<float> GetState() {
         List<float> state = new List<float>
