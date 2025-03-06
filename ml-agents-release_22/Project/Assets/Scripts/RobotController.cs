@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,6 +17,7 @@ public class RobotController : MonoBehaviour
     }
     public Joint[] joints;
     ArticulationJointController[] jointControllers;
+    public static Action reset;
     
     void Start() {
         jointControllers = new ArticulationJointController[joints.Length];

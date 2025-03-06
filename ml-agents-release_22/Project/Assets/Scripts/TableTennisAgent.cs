@@ -3,6 +3,7 @@ using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
+using System;
 
 public class TableTennisAgent : Agent
 {
@@ -31,7 +32,8 @@ public class TableTennisAgent : Agent
 
     public override void OnEpisodeBegin()
     {
-        ResetManager.Instance.Reset();
+        ballScript.Reset();
+        robotController.Reset();
     }
 
 
