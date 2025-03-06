@@ -259,14 +259,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ballObj: {fileID: 1055291034}
   agentObj: {fileID: 1235530882}
-  Racket: {fileID: 521725710}
-  target1: {fileID: 1074200545}
-  target2: {fileID: 1289527849}
-  target3: {fileID: 1945000463}
-  targetOriginMaterial1: {fileID: 0}
-  targetOriginMaterial2: {fileID: 0}
-  targetOriginMaterial3: {fileID: 0}
-  targetMaterial: {fileID: 0}
+  targets:
+  - {fileID: 1074200545}
+  - {fileID: 1289527849}
+  - {fileID: 1945000463}
+  targetMaterial: {fileID: 2100000, guid: aaf4710cc8d614244816d9673fb4c96a, type: 2}
 --- !u!1 &268350501 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8498141631789956514, guid: f4183300cf95f4a4086b1d99dc46e73b,
@@ -380,12 +377,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 99624450}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &521725710 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5622645192947537259, guid: f4183300cf95f4a4086b1d99dc46e73b,
-    type: 3}
-  m_PrefabInstance: {fileID: 7859156839966672179}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &585173465
 GameObject:
   m_ObjectHideFlags: 0
@@ -859,6 +850,7 @@ MonoBehaviour:
   DeActiveMat: {fileID: 2100000, guid: ad606ca0b6040e647b6f1b339bc1f2ca, type: 2}
   ActiveTag: Target
   DeActiveTag: Untagged
+  mesh: {fileID: 0}
 --- !u!4 &1074200554 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1883524138862646638, guid: db64a05314b436345959222b151c69a8,
@@ -1169,6 +1161,7 @@ GameObject:
   - component: {fileID: 1235530884}
   - component: {fileID: 1235530883}
   - component: {fileID: 1235530886}
+  - component: {fileID: 1235530887}
   m_Layer: 0
   m_Name: Agent
   m_TagString: Untagged
@@ -1255,6 +1248,22 @@ MonoBehaviour:
   DecisionPeriod: 5
   DecisionStep: 0
   TakeActionsBetweenDecisions: 1
+--- !u!114 &1235530887
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1235530882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88b6042bc9a5d4aa58d931eae49442e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentParameters:
+    maxStep: 0
+  hasUpgradedFromAgentParameters: 1
+  MaxStep: 0
 --- !u!1 &1289527849 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4645990401397541427, guid: db64a05314b436345959222b151c69a8,
@@ -1278,6 +1287,7 @@ MonoBehaviour:
   DeActiveMat: {fileID: 2100000, guid: ad606ca0b6040e647b6f1b339bc1f2ca, type: 2}
   ActiveTag: Target
   DeActiveTag: Untagged
+  mesh: {fileID: 0}
 --- !u!4 &1289527858 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1883524138862646638, guid: db64a05314b436345959222b151c69a8,
@@ -1709,6 +1719,7 @@ MonoBehaviour:
   DeActiveMat: {fileID: 2100000, guid: ad606ca0b6040e647b6f1b339bc1f2ca, type: 2}
   ActiveTag: Target
   DeActiveTag: Untagged
+  mesh: {fileID: 0}
 --- !u!4 &1748011025 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1883524138862646638, guid: db64a05314b436345959222b151c69a8,
@@ -1732,6 +1743,7 @@ MonoBehaviour:
   DeActiveMat: {fileID: 2100000, guid: ad606ca0b6040e647b6f1b339bc1f2ca, type: 2}
   ActiveTag: Target
   DeActiveTag: Untagged
+  mesh: {fileID: 0}
 --- !u!1001 &1854267344
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2276,6 +2288,7 @@ MonoBehaviour:
   DeActiveMat: {fileID: 2100000, guid: 68b52d086c6a2e44494f2da4537ee3ae, type: 2}
   ActiveTag: Goal
   DeActiveTag: Untagged
+  mesh: {fileID: 0}
 --- !u!1001 &1966124070
 PrefabInstance:
   m_ObjectHideFlags: 0

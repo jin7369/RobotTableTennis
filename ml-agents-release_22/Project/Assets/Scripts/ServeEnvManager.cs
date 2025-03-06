@@ -9,6 +9,7 @@ public class ServeEnvManager : EnvManager
     TableTennisAgent agent;
 
     public GameObject[] targets;
+    MeshRenderer[] meshRenderers;
     Material[] originMaterials;
     int count = 0;
 
@@ -17,20 +18,53 @@ public class ServeEnvManager : EnvManager
     void Start()
     {
         agent = agentObj.GetComponent<TableTennisAgent>();
+        meshRenderers = new MeshRenderer[targets.Length];
         originMaterials = new Material[targets.Length];
         for (int i = 0; i < targets.Length; i++)  {
-            
+            meshRenderers[i] = targets[i].GetComponent<MeshRenderer>();
+            originMaterials[i] = meshRenderers[i].material;
         }
     }
-    public void Reset()
+    public override void Reset()
     {
-        
+        for (int i = 1; i < targets.Length; i++) {
+            DeactivateTarget(i);
+        }
+        count = 0;
+        ActivateTarget(count);
     }
-    public override void BallCollideWith(GameObject obj) {
-        if (obj.CompareTag("RacketHead")) {
+    void ActivateTarget(int targetNum) 
+    {
+        meshRenderers[targetNum].material = targetMaterial;
+    }
+    void DeactivateTarget(int targetNum) 
+    {
+        meshRenderers[targetNum].material = originMaterials[targetNum];
+    }
+    public override void BallCollideWith(GameObject obj) 
+    {
+
+        if (obj.CompareTag("RacketHead")) 
+        {
             Debug.Log("Racket");
             agent.AddReward(3.0f);
         }
-        
+        else if (ReferenceEquals(obj, targets[count])) 
+        {
+            DeactivateTarget(count++);
+            agent.AddReward(10.0f);
+            if (count < targets.Length) ActivateTarget(count);
+            else 
+            {
+                Reset();
+                agent.EndEpisode();
+            }
+        }
+        else 
+        {
+            Reset();
+            agent.AddReward(-10.0f);
+            agent.EndEpisode();
+        }
     }
 }

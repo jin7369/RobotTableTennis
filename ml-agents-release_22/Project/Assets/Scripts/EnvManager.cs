@@ -18,8 +18,10 @@ public abstract class EnvManager : MonoBehaviour
     void Update()
     {
         if (Vector3.Distance(transform.position, ballObj.transform.position) > 10.0f) {
+            Reset();
             TableTennisAgent.endEpisode();
         }   
     }
     public abstract void BallCollideWith(GameObject obj);
+    public abstract void Reset();
 }
