@@ -40,8 +40,8 @@ public class ReceiveEnvManager : EnvManager
     void Start()
     {
         for (int i = 0; i < targets.Length; i++) {
-            targets[i].targetMeshRenderers = new MeshRenderer[targets.Length];
-            targets[i].targetOriginMaterials = new Material[targets.Length];
+            targets[i].targetMeshRenderers = new MeshRenderer[targets[i].targetObjs.Length];
+            targets[i].targetOriginMaterials = new Material[targets[i].targetObjs.Length];
             for (int j = 0; j < targets[i].targetObjs.Length; j++) {
                 targets[i].targetMeshRenderers[j] = targets[i].targetObjs[j].GetComponent<MeshRenderer>();
                 targets[i].targetOriginMaterials[j] = targets[i].targetMeshRenderers[j].material;
@@ -104,9 +104,12 @@ public class ReceiveEnvManager : EnvManager
         
     }
     public override void Reset() {
-        DeactivateTargets(count);
+        if (count < targets.Length) {
+            DeactivateTargets(count);
+        }
         whoCanHitTheBall = Players.Player1;
         count = 0;
         ActivateTargets(count);
     }
+    
 }
