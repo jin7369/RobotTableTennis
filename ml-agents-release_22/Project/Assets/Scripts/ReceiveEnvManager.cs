@@ -8,6 +8,7 @@ public class ReceiveEnvManager : EnvManager
     public Players whoCanHitTheBall;
     public GameObject agentObj1;
     public GameObject agentObj2;
+    public GameObject ServeArea;
 
     TableTennisAgent agent1;
     TableTennisAgent agent2;
@@ -39,6 +40,7 @@ public class ReceiveEnvManager : EnvManager
     }
     void Start()
     {
+        ServeArea.SetActive(false);
         for (int i = 0; i < targets.Length; i++) {
             targets[i].targetMeshRenderers = new MeshRenderer[targets[i].targetObjs.Length];
             targets[i].targetOriginMaterials = new Material[targets[i].targetObjs.Length];
@@ -71,6 +73,10 @@ public class ReceiveEnvManager : EnvManager
             Reset();
             TableTennisAgent.endEpisode();
         }
+        else if (ReferenceEquals(obj, ServeArea)) {
+            agent1.AddReward(20.0f);
+            ServeArea.SetActive(false);
+        }
         else if (IsTarget(obj)) {
             if (whoCanHitTheBall == Players.Player1) {
                 agent1.AddReward(10.0f);
@@ -82,6 +88,7 @@ public class ReceiveEnvManager : EnvManager
             count++;
             if (count == 2) {
                 whoCanHitTheBall = Players.Player2;
+                ServeArea.SetActive(true);
             }
             if (count < targets.Length) {
                 ActivateTargets(count);
@@ -104,6 +111,7 @@ public class ReceiveEnvManager : EnvManager
         
     }
     public override void Reset() {
+        ServeArea.SetActive(false);
         if (count < targets.Length) {
             DeactivateTargets(count);
         }

@@ -42,6 +42,10 @@ public class BallScript : MonoBehaviour
     {
         env.BallCollideWith(collision.gameObject);
     }
+    void OnTriggerEnter(Collider other)
+    {
+        env.BallCollideWith(other.gameObject);
+    }
     public List<float> GetState() {
         List<float> state = new List<float>
         {

@@ -29,9 +29,7 @@ public class TableTennisAgent : Agent
     {
         ballScript = ball.GetComponent<BallScript>();
         robotController = robot.GetComponent<RobotController>();
-        endEpisode = () => {
-            EndEpisode();
-        };
+        endEpisode += EndEpisode;
     }
 
     public override void OnEpisodeBegin()
