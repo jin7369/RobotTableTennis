@@ -61,7 +61,7 @@ public class ReceiveEnvManager : EnvManager
             agent1.AddReward(3.0f);
         }
         else if (collideWithRacketHead2 && whoCanHitTheBall == Players.Player2) {
-            agent2.AddReward(3.0f);
+            agent2.AddReward(10.0f);
         }
         else if (collideWithRacketHead1 && whoCanHitTheBall == Players.Player2) {
             agent1.AddReward(-10.0f);
@@ -69,26 +69,26 @@ public class ReceiveEnvManager : EnvManager
             TableTennisAgent.endEpisode();
         }
         else if (collideWithRacketHead2 && whoCanHitTheBall == Players.Player1) {
-            agent2.AddReward(-10.0f);
-            Reset();
-            TableTennisAgent.endEpisode();
+            agent2.AddReward(-5.0f);
         }
         else if (ReferenceEquals(obj, ServeArea)) {
             agent1.AddReward(20.0f);
             ServeArea.SetActive(false);
+            //whoCanHitTheBall = Players.Player2;
         }
         else if (IsTarget(obj)) {
             if (whoCanHitTheBall == Players.Player1) {
                 agent1.AddReward(10.0f);
             }
             else {
-                agent2.AddReward(10.0f);
+                agent2.AddReward(30.0f);
+                Debug.Log("Good!");
             }
             DeactivateTargets(count);
             count++;
             if (count == 2) {
-                whoCanHitTheBall = Players.Player2;
                 ServeArea.SetActive(true);
+                whoCanHitTheBall = Players.Player2;
             }
             if (count < targets.Length) {
                 ActivateTargets(count);
@@ -99,12 +99,6 @@ public class ReceiveEnvManager : EnvManager
             }
         }
         else {
-            if (whoCanHitTheBall == Players.Player1) {
-                agent1.AddReward(-10.0f);
-            }
-            else {
-                agent2.AddReward(-10.0f);
-            }
             Reset();
             TableTennisAgent.endEpisode();
         }
