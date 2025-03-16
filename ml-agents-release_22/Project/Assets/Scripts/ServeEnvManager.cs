@@ -45,7 +45,10 @@ public class ServeEnvManager : EnvManager
     public override void BallCollideWith(GameObject obj) 
     {
 
-        if (ReferenceEquals(obj, targets[count])) 
+        if (obj.CompareTag("RacketHead")) {
+            
+        }
+        else if (ReferenceEquals(obj, targets[count])) 
         {
             DeactivateTarget(count++);
             if (count < targets.Length) ActivateTarget(count);

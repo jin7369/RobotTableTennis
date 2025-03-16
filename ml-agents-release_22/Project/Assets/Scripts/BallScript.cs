@@ -23,6 +23,7 @@ public class BallScript : MonoBehaviour
 
     public GameObject envManagerObj;
     EnvManager env;
+    
 
     void Start()
     {
