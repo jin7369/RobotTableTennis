@@ -24,6 +24,7 @@ public class ServeEnvManager : EnvManager
             meshRenderers[i] = targets[i].GetComponent<MeshRenderer>();
             originMaterials[i] = meshRenderers[i].material;
         }
+        ActivateTarget(count);
     }
     public override void Reset()
     {
@@ -44,26 +45,21 @@ public class ServeEnvManager : EnvManager
     public override void BallCollideWith(GameObject obj) 
     {
 
-        if (obj.CompareTag("RacketHead")) 
-        {
-            Debug.Log("Racket");
-            agent.AddReward(3.0f);
-        }
-        else if (ReferenceEquals(obj, targets[count])) 
+        if (ReferenceEquals(obj, targets[count])) 
         {
             DeactivateTarget(count++);
-            agent.AddReward(10.0f);
             if (count < targets.Length) ActivateTarget(count);
             else 
             {
                 Reset();
+                agent.AddReward(1.0f);
                 agent.EndEpisode();
             }
         }
         else 
         {
             Reset();
-            agent.AddReward(-10.0f);
+            agent.AddReward(-1.0f);
             agent.EndEpisode();
         }
     }
