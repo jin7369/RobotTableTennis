@@ -46,23 +46,26 @@ public class ServeEnvManager : EnvManager
     {
 
         if (obj.CompareTag("RacketHead")) {
-            
+            agent.AddReward(3.0f);
         }
         else if (ReferenceEquals(obj, targets[count])) 
         {
             DeactivateTarget(count++);
-            if (count < targets.Length) ActivateTarget(count);
+            if (count < targets.Length) {
+                agent.AddReward(10.0f);
+                ActivateTarget(count);
+            }
             else 
             {
                 Reset();
-                agent.AddReward(1.0f);
+                agent.AddReward(20.0f);
                 agent.EndEpisode();
             }
         }
         else 
         {
             Reset();
-            agent.AddReward(-1.0f);
+            agent.AddReward(-10.0f);
             agent.EndEpisode();
         }
     }
