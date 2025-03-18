@@ -38,6 +38,8 @@ TagManager:
   - Floor
   - Goal
   - Target
+  - RacketHead2
+  - RacketHead1
   layers:
   - Default
   - TransparentFX

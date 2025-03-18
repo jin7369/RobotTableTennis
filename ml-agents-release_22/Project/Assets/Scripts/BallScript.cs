@@ -1,19 +1,37 @@
+using System;
 using System.Collections.Generic;
 using Unity.MLAgents;
 using UnityEngine;
 
 public class BallScript : MonoBehaviour
 {
+    /*
+    공이 해야할 일
+    자신의 현재 위치, 각속도, 속도를 인지하고 원할 때 반환이 가능해야 한다.
 
-    // Start is called before the first frame update
+    어떠한 물체와 부딪혔을 때 그것을 전달 해야한다.
+
+    인자
+    Env Manager : 
+    공의 충돌 상태를 확인하고 에이전트에 보상을 준다
+
+    */
+
+    // 공 관련 
     Vector3 startPosition;
     Rigidbody rb;
+
+    public GameObject envManagerObj;
+    EnvManager env;
+    
+
     void Start()
     {
+        // 자기 자신 관련
         rb = GetComponent<Rigidbody>();
         startPosition = transform.position;
         rb.velocity = Vector3.zero;
-        Debug.Log(GetState().Count);
+        env = envManagerObj.GetComponent<EnvManager>();
     }
     public void Reset()
     {
@@ -21,34 +39,13 @@ public class BallScript : MonoBehaviour
         transform.position = startPosition;
         rb.velocity = Vector3.zero;
     }
-    public void Push() {
-        rb.AddForce(Vector3.forward);
-    }
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("RacketHead")) {
-            if (TableTennisAgent.Instance != null) {
-                TableTennisAgent.Instance.AddReward(3.0f);
-            }
-        }
-        else if (collision.gameObject.CompareTag("Goal")) {
-            if (TableTennisAgent.Instance != null) {
-                TableTennisAgent.Instance.AddReward(20.0f);
-                TableTennisAgent.Instance.EndEpisode();
-            }
-        }
-        else if (collision.gameObject.CompareTag("Target")) {
-            if (TableTennisAgent.Instance != null) {
-                collision.gameObject.GetComponent<Target>().CollisionCheck();
-                TableTennisAgent.Instance.AddReward(15.0f);
-            }
-        }
-        else {
-            if (TableTennisAgent.Instance != null) {
-                TableTennisAgent.Instance.AddReward(-20.0f);
-                TableTennisAgent.Instance.EndEpisode();
-            }
-        }
+        env.BallCollideWith(collision.gameObject);
+    }
+    void OnTriggerEnter(Collider other)
+    {
+        env.BallCollideWith(other.gameObject);
     }
     public List<float> GetState() {
         List<float> state = new List<float>
@@ -64,15 +61,5 @@ public class BallScript : MonoBehaviour
             rb.angularVelocity.z,
         };
         return state;
-    }
-
-    void Update()
-    {
-        if (Vector3.Distance(startPosition, transform.position) > 10) {
-            if (TableTennisAgent.Instance != null) {
-                TableTennisAgent.Instance.AddReward(-10.0f);
-                TableTennisAgent.Instance.EndEpisode();
-            }
-        }
     }
 }
