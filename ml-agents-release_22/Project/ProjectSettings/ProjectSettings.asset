@@ -12,8 +12,8 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: Serve2
-  productName: Serve2
+  companyName: VRServe
+  productName: VRServe
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 320, y: 240}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -161,7 +161,7 @@ PlayerSettings:
   androidMinAspectRatio: 1
   applicationIdentifier:
     Android: com.Company.ProductName
-    Standalone: com.Serve2.Serve2
+    Standalone: com.VRServe.VRServe
   buildNumber:
     Bratwurst: 0
     Standalone: 0

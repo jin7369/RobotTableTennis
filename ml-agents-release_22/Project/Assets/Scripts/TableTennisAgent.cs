@@ -19,37 +19,49 @@ public class TableTennisAgent : Agent
     로봇
     
     */
-    public GameObject ball;
+    // 공 관련
+    public GameObject ballObj;
+    Rigidbody ballRb;
+    Vector3 ballStartPosition;
+
     public GameObject robot;
 
     RobotController robotController;
-    BallScript ballScript;
     public static Action endEpisode;
     public override void Initialize()
     {
-        ballScript = ball.GetComponent<BallScript>();
         robotController = robot.GetComponent<RobotController>();
+        ballRb = ballObj.GetComponent<Rigidbody>();
+        ballStartPosition = ballObj.transform.position;
         endEpisode += EndEpisode;
     }
 
     public override void OnEpisodeBegin()
     {
-        ballScript.Reset();
         robotController.Reset();
+        ballObj.transform.position = ballStartPosition;
+        ballRb.velocity = Vector3.zero;
+        ballRb.angularVelocity = Vector3.zero;
     }
 
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        List<float> ballState = ballScript.GetState();
+        
+        Vector3 ballLocalPosition = transform.InverseTransformVector(ballObj.transform.position);
+        Vector3 ballLocalVelocity = transform.InverseTransformDirection(ballRb.velocity);
+        Vector3 ballLocalAngularVelocity = transform.InverseTransformDirection(ballRb.angularVelocity);
+        sensor.AddObservation(ballLocalPosition);
+        sensor.AddObservation(ballLocalVelocity);
+        sensor.AddObservation(ballLocalAngularVelocity);
+        // 9차원 
         List<float> robotState = robotController.GetState();
-
-        foreach (float value in ballState) {
-            sensor.AddObservation(value);
-        }
         foreach(float value in robotState) {
             sensor.AddObservation(value);
         }
+        // 24차원 
+
+        // 총 33차원 
     }
     public override void OnActionReceived(ActionBuffers actions)
     {
