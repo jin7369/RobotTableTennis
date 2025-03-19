@@ -48,7 +48,7 @@ public class TableTennisAgent : Agent
     public override void CollectObservations(VectorSensor sensor)
     {
         
-        Vector3 ballLocalPosition = transform.InverseTransformVector(ballObj.transform.position);
+        Vector3 ballLocalPosition = transform.InverseTransformVector(transform.position - ballObj.transform.position);
         Vector3 ballLocalVelocity = transform.InverseTransformDirection(ballRb.velocity);
         Vector3 ballLocalAngularVelocity = transform.InverseTransformDirection(ballRb.angularVelocity);
         sensor.AddObservation(ballLocalPosition);

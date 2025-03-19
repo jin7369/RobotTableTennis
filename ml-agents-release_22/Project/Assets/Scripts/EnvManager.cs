@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class EnvManager : MonoBehaviour
@@ -59,6 +60,7 @@ public class EnvManager : MonoBehaviour
         for (int i = 0; i < targetsLen; i++) {
             targets[i].Initialize();
         }
+        targets[0].Activate();
     }
     public void BallCollideWith(GameObject obj) {
         if (obj.CompareTag(racketHeadTag)) {
@@ -66,10 +68,28 @@ public class EnvManager : MonoBehaviour
         }
         else if(targets[targetCount].IsTarget(obj)) {
             targets[targetCount].DeActivate();
+            if (targetCount < targetsLen - 1) {
+                targetCount++;
+                targets[targetCount].Activate();
+                agent.AddReward(targets[targetCount].GetReward());
+            }
+            else {
+                agent.AddReward(targets[targetCount].GetReward());
+                Reset();
+                agent.EndEpisode();
+            }
+        }
+        else {
+            Reset();
+            agent.EndEpisode();
         }
     }
     void Reset()
     {
-        targetCount = 0;   
+        if (targetCount > 0) {
+            targets[targetCount].DeActivate();
+            targetCount = 0;
+            targets[targetCount].Activate();
+        }
     }
 }
