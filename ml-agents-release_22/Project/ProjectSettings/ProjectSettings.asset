@@ -12,8 +12,8 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: VRServe
-  productName: VRServe
+  companyName: Serve
+  productName: Serve55550
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 320, y: 240}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -138,7 +138,10 @@ PlayerSettings:
   vulkanEnableCommandBufferRecycling: 1
   loadStoreDebugModeEnabled: 0
   bundleVersion: 1.0
-  preloadedAssets: []
+  preloadedAssets:
+  - {fileID: 354698474921621916, guid: 5697a07ab409c224197e63610dd4fb43, type: 2}
+  - {fileID: -4860596620164733964, guid: c9809a705cae8684fa31c4d24782bbd8, type: 2}
+  - {fileID: 11400000, guid: 099fc90fdf8528d499fc6310d835e56c, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -161,7 +164,7 @@ PlayerSettings:
   androidMinAspectRatio: 1
   applicationIdentifier:
     Android: com.Company.ProductName
-    Standalone: com.VRServe.VRServe
+    Standalone: com.Serve.Serve55550
   buildNumber:
     Bratwurst: 0
     Standalone: 0

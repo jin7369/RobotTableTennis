@@ -69,9 +69,9 @@ public class EnvManager : MonoBehaviour
         else if(targets[targetCount].IsTarget(obj)) {
             targets[targetCount].DeActivate();
             if (targetCount < targetsLen - 1) {
+                agent.AddReward(targets[targetCount].GetReward());
                 targetCount++;
                 targets[targetCount].Activate();
-                agent.AddReward(targets[targetCount].GetReward());
             }
             else {
                 agent.AddReward(targets[targetCount].GetReward());
