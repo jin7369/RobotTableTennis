@@ -27,13 +27,11 @@ public class TableTennisAgent : Agent
     public GameObject robot;
 
     RobotController robotController;
-    public static Action endEpisode;
     public override void Initialize()
     {
         robotController = robot.GetComponent<RobotController>();
         ballRb = ballObj.GetComponent<Rigidbody>();
         ballStartPosition = ballObj.transform.position;
-        endEpisode += EndEpisode;
     }
 
     public override void OnEpisodeBegin()
@@ -61,7 +59,10 @@ public class TableTennisAgent : Agent
         }
         // 24차원 
 
-        // 총 33차원 
+        // 총 33차원
+        if (Vector3.Magnitude(ballLocalPosition) > 10.0f) {
+            EndEpisode();
+        }
     }
     public override void OnActionReceived(ActionBuffers actions)
     {

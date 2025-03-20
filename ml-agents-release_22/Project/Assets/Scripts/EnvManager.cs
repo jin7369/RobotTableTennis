@@ -76,12 +76,11 @@ public class EnvManager : MonoBehaviour
             else {
                 agent.AddReward(targets[targetCount].GetReward());
                 Reset();
-                agent.EndEpisode();
             }
         }
         else {
+            agent.AddReward(-10.0f);
             Reset();
-            agent.EndEpisode();
         }
     }
     void Reset()
@@ -91,5 +90,6 @@ public class EnvManager : MonoBehaviour
             targetCount = 0;
             targets[targetCount].Activate();
         }
+        agent.EndEpisode();
     }
 }
