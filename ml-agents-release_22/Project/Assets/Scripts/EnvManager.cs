@@ -6,9 +6,11 @@ using UnityEngine;
 public class EnvManager : MonoBehaviour
 {
     public GameObject agentObj;
+    public GameObject dummyAgentObj;
     public string racketHeadTag;
     public float racketHeadReward;
     TableTennisAgent agent;
+    TableTennisAgent dummyAgent;
 
 
     [System.Serializable]
@@ -16,6 +18,7 @@ public class EnvManager : MonoBehaviour
         [SerializeField]private GameObject[] targetObjs;
         [SerializeField]private Material activatedTargetMaterial;
         [SerializeField]private float reward;
+        [SerializeField]private float negative;
         private MeshRenderer[] meshRenderers;
         private Material[] materials;
         private int len;
@@ -47,6 +50,9 @@ public class EnvManager : MonoBehaviour
         public float GetReward() {
             return reward;
         }
+        public float GetNegative() {
+            return negative;
+        }
     }
     public Target[] targets;
     int targetCount;
@@ -55,6 +61,7 @@ public class EnvManager : MonoBehaviour
     void Start()
     {
         agent = agentObj.GetComponent<TableTennisAgent>();
+        if (!ReferenceEquals(null, dummyAgentObj)) dummyAgent = dummyAgentObj.GetComponent<TableTennisAgent>();
         targetCount = 0;
         targetsLen = targets.Length;
         for (int i = 0; i < targetsLen; i++) {
@@ -79,7 +86,7 @@ public class EnvManager : MonoBehaviour
             }
         }
         else {
-            agent.AddReward(-10.0f);
+            agent.AddReward(targets[targetCount].GetNegative());
             Reset();
         }
     }
@@ -91,5 +98,6 @@ public class EnvManager : MonoBehaviour
             targets[targetCount].Activate();
         }
         agent.EndEpisode();
+        if (!ReferenceEquals(null, dummyAgent)) dummyAgent.EndEpisode();
     }
 }
