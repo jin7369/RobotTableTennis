@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -6,19 +7,17 @@ using UnityEngine;
 public class EnvManager : MonoBehaviour
 {
     public GameObject agentObj;
-    public GameObject dummyAgentObj;
     public string racketHeadTag;
     public float racketHeadReward;
-    TableTennisAgent agent;
-    TableTennisAgent dummyAgent;
-
-
+    TableTennisAgent agent; 
     [System.Serializable]
     public class Target {
         [SerializeField]private GameObject[] targetObjs;
         [SerializeField]private Material activatedTargetMaterial;
         [SerializeField]private float reward;
         [SerializeField]private float negative;
+        [SerializeField]private GameObject agentObj;
+        [SerializeField]private TableTennisAgent agent;
         private MeshRenderer[] meshRenderers;
         private Material[] materials;
         private int len;
@@ -30,6 +29,7 @@ public class EnvManager : MonoBehaviour
                 meshRenderers[i] = targetObjs[i].GetComponent<MeshRenderer>();
                 materials[i] = meshRenderers[i].material;
             }
+            agent = agentObj.GetComponent<TableTennisAgent>();
         }
         public void Activate() {
             for (int i = 0; i < len; i++) {
@@ -41,27 +41,20 @@ public class EnvManager : MonoBehaviour
                 meshRenderers[i].material = materials[i];
             }
         }
-        public bool IsTarget(GameObject obj) {
-            for (int i = 0; i < len; i++) {
-                if (ReferenceEquals(obj, targetObjs[i])) return true;
-            }
-            return false;
+        public void PlusReward() {
+            agent.AddReward(reward);
         }
-        public float GetReward() {
-            return reward;
-        }
-        public float GetNegative() {
-            return negative;
+        public void MinusReward() {
+            agent.AddReward(negative);
         }
     }
     public Target[] targets;
-    int targetCount;
-    int targetsLen;
+    protected int targetCount;
+    protected int targetsLen;
 
-    void Start()
+    protected virtual void Start()
     {
         agent = agentObj.GetComponent<TableTennisAgent>();
-        if (!ReferenceEquals(null, dummyAgentObj)) dummyAgent = dummyAgentObj.GetComponent<TableTennisAgent>();
         targetCount = 0;
         targetsLen = targets.Length;
         for (int i = 0; i < targetsLen; i++) {
@@ -69,28 +62,12 @@ public class EnvManager : MonoBehaviour
         }
         targets[0].Activate();
     }
-    public void BallCollideWith(GameObject obj) {
+    public virtual void BallCollideWith(GameObject obj) {
         if (obj.CompareTag(racketHeadTag)) {
             agent.AddReward(racketHeadReward);
         }
-        else if(targets[targetCount].IsTarget(obj)) {
-            targets[targetCount].DeActivate();
-            if (targetCount < targetsLen - 1) {
-                agent.AddReward(targets[targetCount].GetReward());
-                targetCount++;
-                targets[targetCount].Activate();
-            }
-            else {
-                agent.AddReward(targets[targetCount].GetReward());
-                Reset();
-            }
-        }
-        else {
-            agent.AddReward(targets[targetCount].GetNegative());
-            Reset();
-        }
     }
-    void Reset()
+    protected virtual void Reset()
     {
         if (targetCount > 0) {
             targets[targetCount].DeActivate();
@@ -98,6 +75,5 @@ public class EnvManager : MonoBehaviour
             targets[targetCount].Activate();
         }
         agent.EndEpisode();
-        if (!ReferenceEquals(null, dummyAgent)) dummyAgent.EndEpisode();
     }
 }
