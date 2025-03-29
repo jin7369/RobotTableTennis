@@ -7,7 +7,8 @@ using System;
 
 public class TableTennisAgent : Agent
 {
-    /*
+    
+    /*A
     에이전트가 해야할 일
 
     공과 로봇으로 부터 각 상태를 알아내야 한다.
@@ -21,10 +22,12 @@ public class TableTennisAgent : Agent
     */
     // 공 관련
     public GameObject ballObj;
+    public int count = 0;
     Rigidbody ballRb;
     Vector3 ballStartPosition;
 
     public GameObject robot;
+    public GameObject[] points;
 
     RobotController robotController;
     public override void Initialize()
@@ -36,6 +39,8 @@ public class TableTennisAgent : Agent
 
     public override void OnEpisodeBegin()
     {
+        Debug.Log(count);
+        count = 0;
         robotController.Reset();
         ballObj.transform.position = ballStartPosition;
         ballRb.velocity = Vector3.zero;
@@ -63,6 +68,7 @@ public class TableTennisAgent : Agent
         if (Vector3.Magnitude(ballLocalPosition) > 10.0f) {
             EndEpisode();
         }
+        
     }
     public override void OnActionReceived(ActionBuffers actions)
     {
