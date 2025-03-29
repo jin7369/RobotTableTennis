@@ -22,13 +22,13 @@ public class TableTennisAgent : Agent
     */
     // 공 관련
     public GameObject ballObj;
-    public int count = 0;
     Rigidbody ballRb;
     Vector3 ballStartPosition;
 
     public GameObject robot;
     public GameObject[] points;
-
+    public float sumRewardPos = 0;
+    public float sumRewardVel = 0;
     RobotController robotController;
     public override void Initialize()
     {
@@ -39,8 +39,8 @@ public class TableTennisAgent : Agent
 
     public override void OnEpisodeBegin()
     {
-        Debug.Log(count);
-        count = 0;
+        sumRewardPos = 0;
+        sumRewardVel = 0;
         robotController.Reset();
         ballObj.transform.position = ballStartPosition;
         ballRb.velocity = Vector3.zero;
@@ -69,6 +69,35 @@ public class TableTennisAgent : Agent
             EndEpisode();
         }
         
+
+        float max_z = points[0].transform.position.z;
+        float min_z = points[0].transform.position.z;
+        float reward;
+        foreach(var point in points) {
+            float z = point.transform.position.z;
+            max_z = (z > max_z) ? z : max_z;
+            min_z = (z < max_z) ? z : min_z;
+        }
+        if (ballObj.transform.position.z <= max_z && ballObj.transform.position.z >= min_z) {
+            reward = 1/(100.0f+ Math.Abs((transform.position.x - ballObj.transform.position.x) / 3) * 200);
+            sumRewardPos += reward;
+            AddReward(reward);
+        }
+        else {
+            reward = -1/(100.0f+ Math.Abs(transform.position.x - ballObj.transform.position.x / 3) * 200);
+            sumRewardPos += reward;
+            AddReward(reward);
+        }
+        if (ballLocalVelocity.x >= 0) {
+            reward = 1/(50.0f+ Math.Abs(transform.position.x - ballObj.transform.position.x / 3) * 10);
+            sumRewardVel += reward;
+            AddReward(reward);
+        }
+        else {
+            reward = -1/(50.0f+ Math.Abs(transform.position.x - ballObj.transform.position.x / 3) * 10);
+            sumRewardVel += reward;
+            AddReward(reward);
+        }
     }
     public override void OnActionReceived(ActionBuffers actions)
     {

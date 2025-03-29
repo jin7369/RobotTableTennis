@@ -223,7 +223,7 @@ GameObject:
   - component: {fileID: 266420046}
   m_Layer: 0
   m_Name: point2
-  m_TagString: Untagged
+  m_TagString: RacketHead
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -308,7 +308,7 @@ GameObject:
   - component: {fileID: 281299361}
   m_Layer: 0
   m_Name: point3
-  m_TagString: Untagged
+  m_TagString: RacketHead
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -909,7 +909,7 @@ GameObject:
   - component: {fileID: 747721420}
   m_Layer: 0
   m_Name: point1
-  m_TagString: Untagged
+  m_TagString: RacketHead
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1428,9 +1428,16 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 100000
+  MaxStep: 256
   ballObj: {fileID: 1055291034}
   robot: {fileID: 1170223619}
+  points:
+  - {fileID: 1788953107}
+  - {fileID: 547133071}
+  - {fileID: 154943203}
+  - {fileID: 1206637655}
+  sumRewardPos: 0
+  sumRewardVel: 0
 --- !u!114 &1235530884
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1622,7 +1629,7 @@ GameObject:
   - component: {fileID: 1632465830}
   m_Layer: 0
   m_Name: point4
-  m_TagString: Untagged
+  m_TagString: RacketHead
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1758,9 +1765,16 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 100000
+  MaxStep: 256
   ballObj: {fileID: 1055291034}
   robot: {fileID: 1934438344}
+  points:
+  - {fileID: 747721418}
+  - {fileID: 266420043}
+  - {fileID: 281299358}
+  - {fileID: 1632465827}
+  sumRewardPos: 0
+  sumRewardVel: 0
 --- !u!114 &1664313802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2265,7 +2279,7 @@ PrefabInstance:
     - target: {fileID: 7626770105362476579, guid: e1cfd06b79d28f9459b3c959519f268e,
         type: 3}
       propertyPath: m_TagString
-      value: RacketHead2
+      value: RacketHead
       objectReference: {fileID: 0}
     - target: {fileID: 7718661544045574466, guid: e1cfd06b79d28f9459b3c959519f268e,
         type: 3}
@@ -2275,12 +2289,17 @@ PrefabInstance:
     - target: {fileID: 7879127453680102085, guid: e1cfd06b79d28f9459b3c959519f268e,
         type: 3}
       propertyPath: m_TagString
-      value: RacketHead2
+      value: RacketHead
       objectReference: {fileID: 0}
     - target: {fileID: 8164565416047695545, guid: e1cfd06b79d28f9459b3c959519f268e,
         type: 3}
       propertyPath: m_Name
       value: Receiver
+      objectReference: {fileID: 0}
+    - target: {fileID: 9157837392426738146, guid: e1cfd06b79d28f9459b3c959519f268e,
+        type: 3}
+      propertyPath: m_TagString
+      value: RacketHead
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
