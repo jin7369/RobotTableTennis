@@ -69,7 +69,7 @@ public class TableTennisAgent : Agent
             EndEpisode();
         }
         
-
+        /*
         float max_z = points[0].transform.position.z;
         float min_z = points[0].transform.position.z;
         float reward;
@@ -78,6 +78,7 @@ public class TableTennisAgent : Agent
             max_z = (z > max_z) ? z : max_z;
             min_z = (z < max_z) ? z : min_z;
         }
+        
         if (ballObj.transform.position.z <= max_z && ballObj.transform.position.z >= min_z) {
             reward = 1/(100.0f+ Math.Abs((transform.position.x - ballObj.transform.position.x) / 3) * 200);
             sumRewardPos += reward;
@@ -98,6 +99,7 @@ public class TableTennisAgent : Agent
             sumRewardVel += reward;
             AddReward(reward);
         }
+        */
     }
     public override void OnActionReceived(ActionBuffers actions)
     {
