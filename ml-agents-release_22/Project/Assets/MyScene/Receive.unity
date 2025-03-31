@@ -1797,7 +1797,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: ae85ffa3afcae344885a2c859b069246, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Receive
@@ -2522,20 +2522,20 @@ MonoBehaviour:
     - {fileID: 5554979346206317084}
     activatedTargetMaterial: {fileID: 2100000, guid: aaf4710cc8d614244816d9673fb4c96a,
       type: 2}
-    reward: 5
-    negative: -10
+    reward: 10
+    negative: -20
   - targetObjs:
     - {fileID: 1934438346}
     activatedTargetMaterial: {fileID: 2100000, guid: aaf4710cc8d614244816d9673fb4c96a,
       type: 2}
-    reward: 3
-    negative: -1
+    reward: 20
+    negative: -10
   - targetObjs:
     - {fileID: 1477889450}
     - {fileID: 1782081530}
     activatedTargetMaterial: {fileID: 2100000, guid: aaf4710cc8d614244816d9673fb4c96a,
       type: 2}
-    reward: 10
+    reward: 30
     negative: -5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
