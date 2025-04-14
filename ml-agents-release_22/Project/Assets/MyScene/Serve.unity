@@ -1158,8 +1158,6 @@ MonoBehaviour:
   ballObj: {fileID: 1055291034}
   robot: {fileID: 1170223619}
   points: []
-  sumRewardPos: 0
-  sumRewardVel: 0
 --- !u!114 &1235530884
 MonoBehaviour:
   m_ObjectHideFlags: 0
