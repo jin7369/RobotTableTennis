@@ -8,6 +8,7 @@ using UnityEngine.XR.Interaction.Toolkit.Inputs;
 public class EnvManager : MonoBehaviour
 {
     public GameObject[] agentObjs;
+    public Action reset;
     TableTennisAgent[] agents; 
     [System.Serializable]
     public class Target {
@@ -56,6 +57,7 @@ public class EnvManager : MonoBehaviour
 
     protected virtual void Start()
     {
+        reset += Reset;
         agents = new TableTennisAgent[agentObjs.Length];
         for (int i = 0; i < agentObjs.Length; i++) {
             agents[i] = agentObjs[i].GetComponent<TableTennisAgent>();
@@ -86,13 +88,13 @@ public class EnvManager : MonoBehaviour
                     targets[targetCount].Activate();
                 }
                 else {
-                    Reset();
+                    reset();
                 }
                 
             }
             else {
                 agents[0].AddReward(target.GetNegativeReward());
-                Reset();
+                reset();
             }
         }
     }

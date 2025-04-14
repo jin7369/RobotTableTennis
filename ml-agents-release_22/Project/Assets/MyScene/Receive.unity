@@ -981,6 +981,12 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1934438351}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1032932725 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7193929452036516010, guid: a5e4b34ca03110c48a60e5a1f212383d,
+    type: 3}
+  m_PrefabInstance: {fileID: 5554979346206317082}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1055291034 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5892035712902726564, guid: f8bb78b58cb0a024d8faeea73dca12a1,
@@ -1436,8 +1442,6 @@ MonoBehaviour:
   - {fileID: 547133071}
   - {fileID: 154943203}
   - {fileID: 1206637655}
-  sumRewardPos: 0
-  sumRewardVel: 0
 --- !u!114 &1235530884
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1773,8 +1777,6 @@ MonoBehaviour:
   - {fileID: 266420043}
   - {fileID: 281299358}
   - {fileID: 1632465827}
-  sumRewardPos: 0
-  sumRewardVel: 0
 --- !u!114 &1664313802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1797,7 +1799,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: ae85ffa3afcae344885a2c859b069246, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 26b2e2ca73d68604181eb95c9001cbd2, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Receive
@@ -2533,6 +2535,12 @@ MonoBehaviour:
   - targetObjs:
     - {fileID: 1477889450}
     - {fileID: 1782081530}
+    activatedTargetMaterial: {fileID: 2100000, guid: aaf4710cc8d614244816d9673fb4c96a,
+      type: 2}
+    reward: 30
+    negative: -5
+  - targetObjs:
+    - {fileID: 1032932725}
     activatedTargetMaterial: {fileID: 2100000, guid: aaf4710cc8d614244816d9673fb4c96a,
       type: 2}
     reward: 30

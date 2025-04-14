@@ -27,8 +27,9 @@ public class TableTennisAgent : Agent
 
     public GameObject robot;
     public GameObject[] points;
-    public float sumRewardPos = 0;
-    public float sumRewardVel = 0;
+    
+    
+
     RobotController robotController;
     public override void Initialize()
     {
@@ -39,8 +40,6 @@ public class TableTennisAgent : Agent
 
     public override void OnEpisodeBegin()
     {
-        sumRewardPos = 0;
-        sumRewardVel = 0;
         robotController.Reset();
         ballObj.transform.position = ballStartPosition;
         ballRb.velocity = Vector3.zero;
@@ -69,6 +68,10 @@ public class TableTennisAgent : Agent
             EndEpisode();
         }
         
+
+
+        // 1. 탁구 라켓의 z좌표가 공과 같은 위치일 경우 보상을 주도록 한다
+        // 2. 공의 속도가 에이전트와 반대방향일 경우 보상을 주도록 한다.
         /*
         float max_z = points[0].transform.position.z;
         float min_z = points[0].transform.position.z;
@@ -85,17 +88,17 @@ public class TableTennisAgent : Agent
             AddReward(reward);
         }
         else {
-            reward = -1/(100.0f+ Math.Abs(transform.position.x - ballObj.transform.position.x / 3) * 200);
+            reward = -1/(100.0f+ Math.Abs((transform.position.x - ballObj.transform.position.x) / 3) * 200);
             sumRewardPos += reward;
             AddReward(reward);
         }
         if (ballLocalVelocity.x >= 0) {
-            reward = 1/(50.0f+ Math.Abs(transform.position.x - ballObj.transform.position.x / 3) * 10);
+            reward = 1/(50.0f+ Math.Abs((transform.position.x - ballObj.transform.position.x) / 3) * 10);
             sumRewardVel += reward;
             AddReward(reward);
         }
         else {
-            reward = -1/(50.0f+ Math.Abs(transform.position.x - ballObj.transform.position.x / 3) * 10);
+            reward = -1/(50.0f+ Math.Abs((transform.position.x - ballObj.transform.position.x) / 3) * 10);
             sumRewardVel += reward;
             AddReward(reward);
         }
