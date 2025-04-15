@@ -7,7 +7,8 @@ using System;
 
 public class TableTennisAgent : Agent
 {
-    /*
+    
+    /*A
     에이전트가 해야할 일
 
     공과 로봇으로 부터 각 상태를 알아내야 한다.
@@ -19,37 +20,89 @@ public class TableTennisAgent : Agent
     로봇
     
     */
-    public GameObject ball;
+    // 공 관련
+    public GameObject ballObj;
+    Rigidbody ballRb;
+    Vector3 ballStartPosition;
+
     public GameObject robot;
+    public GameObject[] points;
+    
+    
 
     RobotController robotController;
-    BallScript ballScript;
-    public static Action endEpisode;
     public override void Initialize()
     {
-        ballScript = ball.GetComponent<BallScript>();
         robotController = robot.GetComponent<RobotController>();
-        endEpisode += EndEpisode;
+        ballRb = ballObj.GetComponent<Rigidbody>();
+        ballStartPosition = ballObj.transform.position;
     }
 
     public override void OnEpisodeBegin()
     {
-        ballScript.Reset();
         robotController.Reset();
+        ballObj.transform.position = ballStartPosition;
+        ballRb.velocity = Vector3.zero;
+        ballRb.angularVelocity = Vector3.zero;
     }
 
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        List<float> ballState = ballScript.GetState();
+        
+        Vector3 ballLocalPosition = transform.InverseTransformVector(transform.position - ballObj.transform.position);
+        Vector3 ballLocalVelocity = transform.InverseTransformDirection(ballRb.velocity);
+        Vector3 ballLocalAngularVelocity = transform.InverseTransformDirection(ballRb.angularVelocity);
+        sensor.AddObservation(ballLocalPosition);
+        sensor.AddObservation(ballLocalVelocity);
+        sensor.AddObservation(ballLocalAngularVelocity);
+        // 9차원 
         List<float> robotState = robotController.GetState();
-
-        foreach (float value in ballState) {
-            sensor.AddObservation(value);
-        }
         foreach(float value in robotState) {
             sensor.AddObservation(value);
         }
+        // 24차원 
+
+        // 총 33차원
+        if (Vector3.Magnitude(ballLocalPosition) > 10.0f) {
+            EndEpisode();
+        }
+        
+
+
+        // 1. 탁구 라켓의 z좌표가 공과 같은 위치일 경우 보상을 주도록 한다
+        // 2. 공의 속도가 에이전트와 반대방향일 경우 보상을 주도록 한다.
+        /*
+        float max_z = points[0].transform.position.z;
+        float min_z = points[0].transform.position.z;
+        float reward;
+        foreach(var point in points) {
+            float z = point.transform.position.z;
+            max_z = (z > max_z) ? z : max_z;
+            min_z = (z < max_z) ? z : min_z;
+        }
+        
+        if (ballObj.transform.position.z <= max_z && ballObj.transform.position.z >= min_z) {
+            reward = 1/(100.0f+ Math.Abs((transform.position.x - ballObj.transform.position.x) / 3) * 200);
+            sumRewardPos += reward;
+            AddReward(reward);
+        }
+        else {
+            reward = -1/(100.0f+ Math.Abs((transform.position.x - ballObj.transform.position.x) / 3) * 200);
+            sumRewardPos += reward;
+            AddReward(reward);
+        }
+        if (ballLocalVelocity.x >= 0) {
+            reward = 1/(50.0f+ Math.Abs((transform.position.x - ballObj.transform.position.x) / 3) * 10);
+            sumRewardVel += reward;
+            AddReward(reward);
+        }
+        else {
+            reward = -1/(50.0f+ Math.Abs((transform.position.x - ballObj.transform.position.x) / 3) * 10);
+            sumRewardVel += reward;
+            AddReward(reward);
+        }
+        */
     }
     public override void OnActionReceived(ActionBuffers actions)
     {
