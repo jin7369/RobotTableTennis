@@ -22,6 +22,7 @@ public class TableTennisAgent : Agent
     */
     // 공 관련
     public GameObject ballObj;
+    public GameObject target;
     Rigidbody ballRb;
     Vector3 ballStartPosition;
 
@@ -46,63 +47,36 @@ public class TableTennisAgent : Agent
         ballRb.angularVelocity = Vector3.zero;
     }
 
-
     public override void CollectObservations(VectorSensor sensor)
     {
         
         Vector3 ballLocalPosition = transform.InverseTransformVector(transform.position - ballObj.transform.position);
         Vector3 ballLocalVelocity = transform.InverseTransformDirection(ballRb.velocity);
-        Vector3 ballLocalAngularVelocity = transform.InverseTransformDirection(ballRb.angularVelocity);
+        //Vector3 ballLocalAngularVelocity = transform.InverseTransformDirection(ballRb.angularVelocity);
         sensor.AddObservation(ballLocalPosition);
         sensor.AddObservation(ballLocalVelocity);
-        sensor.AddObservation(ballLocalAngularVelocity);
-        // 9차원 
+        //sensor.AddObservation(ballLocalAngularVelocity);
+        // 9차원 -> 6차원(각속도 제거)
         List<float> robotState = robotController.GetState();
         foreach(float value in robotState) {
             sensor.AddObservation(value);
         }
         // 24차원 
 
-        // 총 33차원
+        // 총 33차원 -> 30차원(각속도 제거)
         if (Vector3.Magnitude(ballLocalPosition) > 10.0f) {
             EndEpisode();
         }
         
-
-
-        // 1. 탁구 라켓의 z좌표가 공과 같은 위치일 경우 보상을 주도록 한다
-        // 2. 공의 속도가 에이전트와 반대방향일 경우 보상을 주도록 한다.
-        /*
-        float max_z = points[0].transform.position.z;
-        float min_z = points[0].transform.position.z;
-        float reward;
-        foreach(var point in points) {
-            float z = point.transform.position.z;
-            max_z = (z > max_z) ? z : max_z;
-            min_z = (z < max_z) ? z : min_z;
-        }
+        Vector3 acceleration = Physics.gravity;
+        double landTime = quadraticFormula(0.5 * acceleration.y, ballLocalVelocity.y, ballStartPosition.y);
         
-        if (ballObj.transform.position.z <= max_z && ballObj.transform.position.z >= min_z) {
-            reward = 1/(100.0f+ Math.Abs((transform.position.x - ballObj.transform.position.x) / 3) * 200);
-            sumRewardPos += reward;
-            AddReward(reward);
-        }
-        else {
-            reward = -1/(100.0f+ Math.Abs((transform.position.x - ballObj.transform.position.x) / 3) * 200);
-            sumRewardPos += reward;
-            AddReward(reward);
-        }
-        if (ballLocalVelocity.x >= 0) {
-            reward = 1/(50.0f+ Math.Abs((transform.position.x - ballObj.transform.position.x) / 3) * 10);
-            sumRewardVel += reward;
-            AddReward(reward);
-        }
-        else {
-            reward = -1/(50.0f+ Math.Abs((transform.position.x - ballObj.transform.position.x) / 3) * 10);
-            sumRewardVel += reward;
-            AddReward(reward);
-        }
-        */
+        
+    }
+    double quadraticFormula(double a, double b, double c) {
+        double ret = -b + Math.Sqrt(Math.Pow(b, 2) - 4 * a * c);
+        ret = ret / (2 * a);
+        return ret;
     }
     public override void OnActionReceived(ActionBuffers actions)
     {

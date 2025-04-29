@@ -11,6 +11,10 @@ public class BallScript : MonoBehaviour
     {
         envManager = envManagerObj.GetComponent<EnvManager>();   
     }
+    void FixedUpdate()
+    {
+        
+    }
     void OnCollisionEnter(Collision collision) {
         envManager.BallCollideWith(collision.gameObject);
     }
