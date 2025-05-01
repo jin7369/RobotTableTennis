@@ -65,15 +65,17 @@ public class TableTennisAgent : Agent
         //Vector3 ballLocalAngularVelocity = transform.InverseTransformDirection(ballRb.angularVelocity);
         sensor.AddObservation(ballLocalPosition);
         sensor.AddObservation(ballLocalVelocity);
+        sensor.AddObservation(targetObj.transform.position.x);
+        sensor.AddObservation(targetObj.transform.position.z);
         //sensor.AddObservation(ballLocalAngularVelocity);
-        // 6차원 
+        // 9차원 
         List<float> robotState = robotController.GetState();
         foreach(float value in robotState) {
             sensor.AddObservation(value);
         }
         // 24차원 
 
-        // 총 30차원 
+        // 총 32차원 
         if (Vector3.Magnitude(ballLocalPosition) > 10.0f) {
             EndEpisode();
         }
