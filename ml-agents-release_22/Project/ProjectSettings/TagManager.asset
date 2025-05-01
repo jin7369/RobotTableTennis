@@ -35,11 +35,7 @@ TagManager:
   - Table
   - Net
   - Ball
-  - Floor
-  - Goal
-  - Target
-  - RacketHead2
-  - RacketHead1
+  - Paddle
   layers:
   - Default
   - TransparentFX

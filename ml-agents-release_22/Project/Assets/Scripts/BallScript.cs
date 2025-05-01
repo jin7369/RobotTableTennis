@@ -1,21 +1,24 @@
 using System;
 using System.Collections.Generic;
 using Unity.MLAgents;
+using Unity.MLAgents.Extensions.Input;
 using UnityEngine;
 
 public class BallScript : MonoBehaviour
 {
-    public GameObject envManagerObj;
-    EnvManager envManager;
+    public GameObject tableTennisAgentObj;
+    TableTennisAgent tableTennisAgent;
     void Start()
     {
-        envManager = envManagerObj.GetComponent<EnvManager>();   
+        tableTennisAgent = tableTennisAgentObj.GetComponent<TableTennisAgent>();
     }
-    void FixedUpdate()
+    void OnCollisionEnter(Collision collision)
     {
-        
-    }
-    void OnCollisionEnter(Collision collision) {
-        envManager.BallCollideWith(collision.gameObject);
+        if (collision.gameObject.CompareTag("Table")) {
+            tableTennisAgent.Cbt = true;
+        }
+        if (collision.gameObject.CompareTag("Paddle")) {
+            tableTennisAgent.Cbp = true;
+        }
     }
 }
