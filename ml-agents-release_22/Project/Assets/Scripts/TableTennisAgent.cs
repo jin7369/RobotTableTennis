@@ -5,6 +5,7 @@ using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using System;
 using Unity.Collections;
+using System.IO;
 
 
 public class TableTennisAgent : Agent
@@ -26,11 +27,9 @@ public class TableTennisAgent : Agent
     public GameObject ballObj;
     public GameObject paddleObj;
     public GameObject predictionPoint;
-    public GameObject predictedHeight;
     public GameObject targetObj;
-    public GameObject targetHeightObj;
+
     RandomTarget target;
-    RandomTarget targetHeight;
     public bool Cbp;
     public bool Cbt;
     public bool Pbn;
@@ -39,56 +38,57 @@ public class TableTennisAgent : Agent
 
     public GameObject robot;
     public GameObject[] points;
+
+    List<string> trajectorylines;
+    public int stepCount = 0;
+    int saveEvery = 10000;
+    int fileIndex = 0;
     
     
 
     RobotController robotController;
     public override void Initialize()
     {
+        trajectorylines = new List<string>();
+        trajectorylines.Add("step,x,y,z");
         robotController = robot.GetComponent<RobotController>();
         ballRb = ballObj.GetComponent<Rigidbody>();
         ballStartPosition = ballObj.transform.position;
         target = targetObj.GetComponent<RandomTarget>();
-        targetHeight = targetHeightObj.GetComponent<RandomTarget>();
     }
 
     public override void OnEpisodeBegin()
     {
         robotController.Reset();
         target.Reset();
-        targetHeight.Reset();
         ballObj.transform.position = ballStartPosition;
         ballRb.velocity = Vector3.zero;
         ballRb.angularVelocity = Vector3.zero;
         Cbp = false;
         Cbt = false;
-        Pbn = false;
-        predictedHeight.SetActive(false);
         predictionPoint.SetActive(false);
     }
 
     public override void CollectObservations(VectorSensor sensor)
     {
         
-        
         Vector3 ballLocalPosition = transform.InverseTransformDirection(transform.position - ballObj.transform.position);
         Vector3 ballLocalVelocity = transform.InverseTransformDirection(ballRb.velocity);
         Vector3 targetLocalPosition = transform.InverseTransformDirection(transform.position - targetObj.transform.position);
-        //Vector3 ballLocalAngularVelocity = transform.InverseTransformDirection(ballRb.angularVelocity);
 
-        Vector3 targetHeightLocalPosition = transform.InverseTransformDirection(targetHeight.transform.position);
-
-        if ((targetHeightLocalPosition.z > ballLocalPosition.z) && !Pbn) {
-            Pbn = true;
+        if (Application.isBatchMode) {
+            trajectorylines.Add($"{stepCount},{ballLocalPosition.x},{ballLocalPosition.y},{ballLocalPosition.z}");
+            stepCount++;
+            if (stepCount % saveEvery == 0) {
+                SaveTrajectory();
+            }
         }
 
-        
         sensor.AddObservation(ballLocalPosition);
         sensor.AddObservation(ballLocalVelocity);
         sensor.AddObservation(targetLocalPosition.x);
         sensor.AddObservation(targetLocalPosition.z);
-        //sensor.AddObservation(ballLocalAngularVelocity);
-        // 9차원 
+        // 8차원 
         List<float> robotState = robotController.GetState();
         foreach(float value in robotState) {
             sensor.AddObservation(value);
@@ -99,31 +99,20 @@ public class TableTennisAgent : Agent
         if (Vector3.Magnitude(ballLocalPosition) > 10.0f) {
             EndEpisode();
         }
-
-        
-
-        float r_p = 0.0f;
-        float r_b = 0.0f;
-        float r_h = 0.0f;
-        if (!Cbp) {
-            r_p = Mathf.Exp(-4 * (paddleObj.transform.position - ballObj.transform.position).sqrMagnitude); 
-        }
-
-        if (!Cbt && Cbp) {
-            predictionPoint.SetActive(true);
+        float reward = 0.0f;
+        if (Cbp) {
             Vector3 predictedLandingPoint = PredictLandingPoint(ballObj.transform.position, ballRb.velocity);
+            predictionPoint.SetActive(true);
             predictionPoint.transform.position = predictedLandingPoint;
-            r_b = 1.0f + Mathf.Exp(-4 * (predictedLandingPoint - targetObj.transform.position).sqrMagnitude);
+            reward += 1.0f + Mathf.Exp(-4 * (predictedLandingPoint - targetObj.transform.position).sqrMagnitude);
+            reward *= Mathf.Exp(-(ballLocalPosition - targetLocalPosition).sqrMagnitude);
+            bool xRangeIn = (target.min_x <= predictedLandingPoint.x) && (target.max_x >= predictedLandingPoint.x);
+            bool zRangeIn = (target.min_z <= predictedLandingPoint.z) && (target.max_z >= predictedLandingPoint.z);
+            if (xRangeIn && zRangeIn) {
+                reward *= 1.5f;
+            }
         }
-
-        if (Cbp && !Pbn) {
-            predictedHeight.SetActive(true);
-            float predictedPassingHeight = PredictedPassingHeight(ballObj.transform.position, ballRb.velocity);
-            predictedHeight.transform.position = new Vector3(predictedHeight.transform.position.x, predictedPassingHeight, predictedHeight.transform.position.z);
-            r_h = Mathf.Exp(-4 * Mathf.Pow((predictedPassingHeight - targetHeightObj.transform.position.y), 2));
-        }
-        
-        AddReward(0.1f * r_p + 0.3f * r_b + 0.6f * r_h);
+        AddReward(reward);
     }
     Vector3 PredictLandingPoint(Vector3 position, Vector3 velocity) {
         float g = Mathf.Abs(Physics.gravity.y);
@@ -140,23 +129,23 @@ public class TableTennisAgent : Agent
         float z = position.z + velocity.z * t;
         return new Vector3(x, 0, z);
     }
-    float PredictedPassingHeight(Vector3 position, Vector3 velocity) {
-        float vx = velocity.x;
-        float x0 = position.x; // x0 + vx * t = targetHeight.transform.position.x;
-        
-        
-        if (vx == 0.0f) {
-            return -0.0f;
-        }
-        float t = (targetHeight.transform.position.x - x0) / vx;
-        float g = Mathf.Abs(Physics.gravity.y);
-        return -0.5f * g * t * t + position.y + velocity.y * t;
-    }
     public override void OnActionReceived(ActionBuffers actions)
     {
         for (int i = 0; i < actions.ContinuousActions.Length; i++) {
             var action = Mathf.Clamp(actions.ContinuousActions[i], -1f, 1f);
             robotController.ControlTargetPosition(i, action);
         }
+    }
+
+    void SaveTrajectory() {
+        string folderPath = Path.Combine(Application.persistentDataPath, "Trajectories");
+        Directory.CreateDirectory(folderPath);
+
+        string filePath = Path.Combine(folderPath, $"trajectory_{fileIndex}.csv");
+        File.WriteAllLines(filePath, trajectorylines);
+        fileIndex++;
+
+        trajectorylines.Clear();
+        trajectorylines.Add("step,x,y,z");
     }
 }

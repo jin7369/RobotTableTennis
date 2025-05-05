@@ -21,6 +21,7 @@ public class BallScript : MonoBehaviour
             tableTennisAgent.Cbp = true;
         }
         else {
+            Debug.Log(tableTennisAgent.GetCumulativeReward());
             tableTennisAgent.EndEpisode();
         }
     }

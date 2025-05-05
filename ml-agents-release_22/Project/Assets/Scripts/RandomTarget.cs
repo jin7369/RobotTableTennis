@@ -6,10 +6,10 @@ public class RandomTarget : MonoBehaviour
 {
     public GameObject rangePoint1;
     public GameObject rangePoint2;
-    float max_x;
-    float max_z;
-    float min_x;
-    float min_z;
+    public float max_x;
+    public float max_z;
+    public float min_x;
+    public float min_z;
     float max_y;
     float min_y;
     void Start()
