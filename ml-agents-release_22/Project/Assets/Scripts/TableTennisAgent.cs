@@ -37,20 +37,23 @@ public class TableTennisAgent : Agent
     Vector3 ballStartPosition;
 
     public GameObject robot;
-    public GameObject[] points;
 
-    List<string> trajectorylines;
-    public int stepCount = 0;
-    int saveEvery = 10000;
-    int fileIndex = 0;
+    private StreamWriter writer;
+    private string path;
     
     
 
     RobotController robotController;
     public override void Initialize()
     {
-        trajectorylines = new List<string>();
-        trajectorylines.Add("step,x,y,z");
+        if (Application.isBatchMode) {
+            string timestamp = DateTime.Now.ToString("yyyy_MM_dd_HH_mm");
+            string filename = $"{timestamp}_ball_state.csv";
+            path = Path.Combine(Application.persistentDataPath, filename);
+            writer = new StreamWriter(path, append:false);
+            writer.WriteLine("ball_x,ball_z,target_x,target_z,cbp,cbt");
+
+        }
         robotController = robot.GetComponent<RobotController>();
         ballRb = ballObj.GetComponent<Rigidbody>();
         ballStartPosition = ballObj.transform.position;
@@ -76,14 +79,6 @@ public class TableTennisAgent : Agent
         Vector3 ballLocalVelocity = transform.InverseTransformDirection(ballRb.velocity);
         Vector3 targetLocalPosition = transform.InverseTransformDirection(transform.position - targetObj.transform.position);
 
-        if (Application.isBatchMode) {
-            trajectorylines.Add($"{stepCount},{ballLocalPosition.x},{ballLocalPosition.y},{ballLocalPosition.z}");
-            stepCount++;
-            if (stepCount % saveEvery == 0) {
-                SaveTrajectory();
-            }
-        }
-
         sensor.AddObservation(ballLocalPosition);
         sensor.AddObservation(ballLocalVelocity);
         sensor.AddObservation(targetLocalPosition.x);
@@ -96,11 +91,8 @@ public class TableTennisAgent : Agent
         // 24차원 
 
         // 총 32차원 
-        if (Vector3.Magnitude(ballLocalPosition) > 10.0f) {
-            EndEpisode();
-        }
         float reward = 0.0f;
-        if (Cbp) {
+        if (Cbp && !Cbt) {
             Vector3 predictedLandingPoint = PredictLandingPoint(ballObj.transform.position, ballRb.velocity);
             predictionPoint.SetActive(true);
             predictionPoint.transform.position = predictedLandingPoint;
@@ -136,16 +128,26 @@ public class TableTennisAgent : Agent
             robotController.ControlTargetPosition(i, action);
         }
     }
+    public void EndEpisodeWithSave() {
+        Vector3 ballPos = ballObj.transform.position;
+        Vector3 targetPos = targetObj.transform.position;
+        int cbp_val = Cbp ? 1 : 0;
+        int cbt_val = Cbt ? 1 : 0;
+        string line = 
+        $"{ballPos.x:F3},{ballPos.z:F3}," + 
+        $"{targetPos.x:F3},{targetPos.z:F3}," +
+        $"{cbp_val},{cbt_val}";
 
-    void SaveTrajectory() {
-        string folderPath = Path.Combine(Application.persistentDataPath, "Trajectories");
-        Directory.CreateDirectory(folderPath);
-
-        string filePath = Path.Combine(folderPath, $"trajectory_{fileIndex}.csv");
-        File.WriteAllLines(filePath, trajectorylines);
-        fileIndex++;
-
-        trajectorylines.Clear();
-        trajectorylines.Add("step,x,y,z");
+        writer.WriteLine(line);
+        
+        EndEpisode();
     }
+    void OnApplicationQuit()
+    {
+        if (writer != null) {
+            writer.Flush();
+            writer.Close();
+        }
+    }
+
 }
