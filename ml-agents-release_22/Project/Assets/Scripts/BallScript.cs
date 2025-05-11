@@ -26,6 +26,7 @@ public class BallScript : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Table")) {
+            //tableTennisAgent.AddReward(1.0f);
             Debug.Log(tableTennisAgent.GetCumulativeReward());
             tableTennisAgent.Cbt = true;
             if (Application.isBatchMode) {

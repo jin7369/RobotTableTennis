@@ -1364,8 +1364,6 @@ MonoBehaviour:
   Cbt: 0
   Pbn: 0
   robot: {fileID: 1170223619}
-  points: []
-  stepCount: 0
 --- !u!114 &1235530884
 MonoBehaviour:
   m_ObjectHideFlags: 0

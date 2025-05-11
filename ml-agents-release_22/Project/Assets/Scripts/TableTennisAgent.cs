@@ -96,15 +96,16 @@ public class TableTennisAgent : Agent
             Vector3 predictedLandingPoint = PredictLandingPoint(ballObj.transform.position, ballRb.velocity);
             predictionPoint.SetActive(true);
             predictionPoint.transform.position = predictedLandingPoint;
-            reward += 1.0f + Mathf.Exp(-4 * (predictedLandingPoint - targetObj.transform.position).sqrMagnitude);
-            reward *= Mathf.Exp(-(ballLocalPosition - targetLocalPosition).sqrMagnitude);
-            bool xRangeIn = (target.min_x <= predictedLandingPoint.x) && (target.max_x >= predictedLandingPoint.x);
-            bool zRangeIn = (target.min_z <= predictedLandingPoint.z) && (target.max_z >= predictedLandingPoint.z);
-            if (xRangeIn && zRangeIn) {
+            reward += Mathf.Exp(1-4*(predictedLandingPoint - targetObj.transform.position).sqrMagnitude);
+            reward *= Mathf.Exp((predictedLandingPoint - ballLocalPosition).sqrMagnitude);
+            //reward *= Mathf.Exp(Mathf.Pow(ballLocalPosition.y - targetLocalPosition.y, 2.0f));
+            bool cond1 = target.max_x >= predictedLandingPoint.x && target.min_x <= predictedLandingPoint.x;
+            bool cond2 = target.max_z >= predictedLandingPoint.z && target.min_z <= predictedLandingPoint.z;
+            if (cond1 && cond2) {
                 reward *= 1.5f;
             }
         }
-        AddReward(reward);
+        AddReward(reward);  
     }
     Vector3 PredictLandingPoint(Vector3 position, Vector3 velocity) {
         float g = Mathf.Abs(Physics.gravity.y);
