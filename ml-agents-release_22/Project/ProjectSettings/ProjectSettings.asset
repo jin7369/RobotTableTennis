@@ -12,7 +12,7 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: Train0511_2
+  companyName: Train
   productName: Serve
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 320, y: 240}
@@ -161,7 +161,7 @@ PlayerSettings:
   androidMinAspectRatio: 1
   applicationIdentifier:
     Android: com.Company.ProductName
-    Standalone: com.Train0511-2.Serve
+    Standalone: com.Train.Serve
   buildNumber:
     Bratwurst: 0
     Standalone: 0

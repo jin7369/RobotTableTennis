@@ -8,7 +8,14 @@ subprocess.run([
     "mlagents-learn",
     "config/Serve.yaml",
     "--run_id", run_id,
-    "--env=./Serve.exe",
-    "--time-scale=20",
+    "--env=env/Serve05_11_2/Serve.exe",
+    "--no-graphics"
+])
+
+subprocess.run([
+    "mlagents-learn",
+    "config/Serve.yaml",
+    "--run_id", run_id,
+    "--env=env/Serve05_11_3/Serve.exe",
     "--no-graphics"
 ])
