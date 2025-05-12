@@ -102,6 +102,7 @@ public class TableTennisAgent : Agent
             bool cond1 = target.max_x >= predictedLandingPoint.x && target.min_x <= predictedLandingPoint.x;
             bool cond2 = target.max_z >= predictedLandingPoint.z && target.min_z <= predictedLandingPoint.z;
             if (cond1 && cond2) {
+                Debug.Log("Table On");
                 reward *= 1.5f;
             }
         }
