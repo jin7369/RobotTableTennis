@@ -125,7 +125,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 1013132336}
+    m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 848121070380834699, guid: e1cfd06b79d28f9459b3c959519f268e,
         type: 3}
@@ -205,32 +205,32 @@ PrefabInstance:
     - target: {fileID: 2691872208156507626, guid: e1cfd06b79d28f9459b3c959519f268e,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 3.333334
+      value: 0.05000001
       objectReference: {fileID: 0}
     - target: {fileID: 2691872208156507626, guid: e1cfd06b79d28f9459b3c959519f268e,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.32786885
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 2691872208156507626, guid: e1cfd06b79d28f9459b3c959519f268e,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.3114755
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2691872208156507626, guid: e1cfd06b79d28f9459b3c959519f268e,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -112.333336
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2691872208156507626, guid: e1cfd06b79d28f9459b3c959519f268e,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.49262294
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2691872208156507626, guid: e1cfd06b79d28f9459b3c959519f268e,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.002622951
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2691872208156507626, guid: e1cfd06b79d28f9459b3c959519f268e,
         type: 3}
@@ -1386,7 +1386,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 0eee8dc5c06fc6248acf7af0f49ed7ee, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 78963d3695a72d74386f654a50aa483f, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Serve
@@ -2167,10 +2167,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1467879098}
-    - targetCorrespondingSourceObject: {fileID: 4114284187319648280, guid: a5e4b34ca03110c48a60e5a1f212383d,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1170223625}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a5e4b34ca03110c48a60e5a1f212383d, type: 3}
 --- !u!1660057539 &9223372036854775807
@@ -2185,3 +2181,4 @@ SceneRoots:
   - {fileID: 1296609407}
   - {fileID: 1709094477}
   - {fileID: 598036704}
+  - {fileID: 321996141}

@@ -14,6 +14,8 @@ class Trainer:
         self.config_path_var = tk.StringVar()
         self.run_id_var = tk.StringVar()
         self.status_var = tk.StringVar()
+        self.results_path_var = tk.StringVar()
+        self.log_path_var = tk.StringVar()
 
         self.label(text="Python Executable (python.exe)")
         self.entry(textvariable=self.python_path_var)
@@ -29,6 +31,14 @@ class Trainer:
 
         self.label(text="Run ID:")
         self.entry(textvariable=self.run_id_var)
+
+        self.label(text="Results Path")
+        self.entry(textvariable=self.results_path_var)
+        self.button(text="Browse", command=self.browse_result_path)
+
+        self.label(text="Log Path")
+        self.entry(textvariable=self.log_path_var)
+        self.button(text="Browse", command=self.browse_log_path)
 
         self.button(text="Start", command=self.run_mlagents)
         self.button(text="Stop", command=self.stop_mlagents)
@@ -53,17 +63,29 @@ class Trainer:
 
 
     def browse_env_path(self):
-        path = filedialog.askopenfilename(filetypes=[("Unity Executable", "*.exe")])
+        path = filedialog.askopenfilename(initialdir=os.getcwd(),
+                                          filetypes=[("Unity Executable", "*.exe")])
         self.env_path_var.set(value=path)
 
     
     def browse_config_path(self):
-        path = filedialog.askopenfilename(filetypes=[("YAML files", "*.yaml")])
+        path = filedialog.askopenfilename(initialdir=os.getcwd(),
+                                          filetypes=[("YAML files", "*.yaml")])
         self.config_path_var.set(value=path)
     
     def browse_python_path(self):
-        path = filedialog.askopenfilename(filetypes=[("Python Executable", "python.exe")])
+        path = filedialog.askopenfilename(initialdir=os.getcwd(), 
+                                          filetypes=[("Python Executable", "python.exe")])
         self.python_path_var.set(path)
+    
+    def browse_result_path(self):
+        path = filedialog.askdirectory(initialdir=os.getcwd())
+        self.results_path_var.set(path)
+    
+    def browse_log_path(self):
+        path = filedialog.askdirectory(initialdir=os.getcwd())
+        self.log_path_var.set(path)
+        
 
     def run_mlagents(self):
         self.status_var.set(value="Starting...")
@@ -74,6 +96,8 @@ class Trainer:
         env = self.env_path_var.get()
         config = self.config_path_var.get()
         run_id = self.run_id_var.get()
+        results_path = self.results_path_var.get()
+        log_path = self.log_path_var.get()
 
         if not env or not config or not run_id:
             self.status_var.set("Please fill all blank!")
@@ -85,8 +109,11 @@ class Trainer:
             "--env", env,
             "--run-id", run_id,
             "--no-graphics",
+            "--results-dir", results_path,
+            f"--log-dir={log_path}",
             config
         ]
+        
         def run_cmd():
             try:
                 self.mlagents_process = subprocess.Popen(

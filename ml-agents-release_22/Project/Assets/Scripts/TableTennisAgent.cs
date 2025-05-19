@@ -6,6 +6,7 @@ using Unity.MLAgents.Sensors;
 using System;
 using Unity.Collections;
 using System.IO;
+using System.IO.Pipes;
 
 
 public class TableTennisAgent : Agent
@@ -47,11 +48,50 @@ public class TableTennisAgent : Agent
     public override void Initialize()
     {
         if (Application.isBatchMode) {
-            string timestamp = DateTime.Now.ToString("yyyy_MM_dd_HH_mm");
-            string filename = $"{timestamp}_ball_state.csv";
-            path = Path.Combine(Application.persistentDataPath, filename);
-            writer = new StreamWriter(path, append:false);
-            writer.WriteLine("ball_x,ball_z,target_x,target_z,cbp,cbt");
+            string[] args = System.Environment.GetCommandLineArgs();
+            path = null;
+            foreach (var arg in args)
+            {
+                if (arg.StartsWith("--log_path="))
+                {
+                    path = arg.Substring("--log_path=".Length).Trim();
+                }
+            }
+
+            if (string.IsNullOrEmpty(path))
+            {
+                Debug.LogError("Error: no --log_path element");
+                return;
+            }
+            try
+            {
+                string timestamp = DateTime.Now.ToString("yyyy_MM_dd_HH_mm");
+                string filename = $"{timestamp}_ball_state.csv";
+                string descPath = Path.Combine(path, "reward_descriptrion.txt");
+                try
+                {
+                    using (StreamWriter descWriter = new StreamWriter(descPath, append: false))
+                    {
+
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Fail to create reward description file {e.Message}");
+                }
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                path = Path.Combine(path, filename);
+                writer = new StreamWriter(path, append: false);
+                writer.WriteLine("ball_x,ball_z,target_x,target_z,cbp,cbt");
+
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Exception raised with creating log files: {e.Message}");
+            }
 
         }
         robotController = robot.GetComponent<RobotController>();
@@ -108,6 +148,7 @@ public class TableTennisAgent : Agent
         }
         AddReward(reward);  
     }
+    
     Vector3 PredictLandingPoint(Vector3 position, Vector3 velocity) {
         float g = Mathf.Abs(Physics.gravity.y);
         float vy = velocity.y;
