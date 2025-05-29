@@ -11,7 +11,7 @@ using System.IO.Pipes;
 
 public class TableTennisAgent : Agent
 {
-    
+
     /*A
     에이전트가 해야할 일
 
@@ -29,25 +29,27 @@ public class TableTennisAgent : Agent
     public GameObject paddleObj;
     public GameObject predictionPoint;
     public GameObject targetObj;
+    public GameObject ballSpawnArea;
 
     RandomTarget target;
     public bool Cbp;
     public bool Cbt;
     public bool Pbn;
     Rigidbody ballRb;
-    Vector3 ballStartPosition;
+    
 
     public GameObject robot;
 
     private StreamWriter writer;
     private string path;
-    
-    
+
+
 
     RobotController robotController;
     public override void Initialize()
     {
-        if (Application.isBatchMode) {
+        if (Application.isBatchMode)
+        {
             string[] args = System.Environment.GetCommandLineArgs();
             path = null;
             foreach (var arg in args)
@@ -96,7 +98,7 @@ public class TableTennisAgent : Agent
         }
         robotController = robot.GetComponent<RobotController>();
         ballRb = ballObj.GetComponent<Rigidbody>();
-        ballStartPosition = ballObj.transform.position;
+        resetBallState();
         target = targetObj.GetComponent<RandomTarget>();
     }
 
@@ -104,7 +106,7 @@ public class TableTennisAgent : Agent
     {
         robotController.Reset();
         target.Reset();
-        ballObj.transform.position = ballStartPosition;
+        resetBallState();
         ballRb.velocity = Vector3.zero;
         ballRb.angularVelocity = Vector3.zero;
         Cbp = false;
@@ -114,7 +116,7 @@ public class TableTennisAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        
+
         Vector3 ballLocalPosition = transform.InverseTransformDirection(transform.position - ballObj.transform.position);
         Vector3 ballLocalVelocity = transform.InverseTransformDirection(ballRb.velocity);
         Vector3 targetLocalPosition = transform.InverseTransformDirection(transform.position - targetObj.transform.position);
@@ -125,37 +127,42 @@ public class TableTennisAgent : Agent
         sensor.AddObservation(targetLocalPosition.z);
         // 8차원 
         List<float> robotState = robotController.GetState();
-        foreach(float value in robotState) {
+        foreach (float value in robotState)
+        {
             sensor.AddObservation(value);
         }
         // 24차원 
 
         // 총 32차원 
         float reward = 0.0f;
-        if (Cbp && !Cbt) {
+        if (Cbp && !Cbt)
+        {
             Vector3 predictedLandingPoint = PredictLandingPoint(ballObj.transform.position, ballRb.velocity);
             predictionPoint.SetActive(true);
             predictionPoint.transform.position = predictedLandingPoint;
-            reward = 1 + Mathf.Exp(-4*(predictedLandingPoint - targetObj.transform.position).sqrMagnitude);
+            reward = 1 + Mathf.Exp(-4 * (predictedLandingPoint - targetObj.transform.position).sqrMagnitude);
             reward *= Mathf.Exp(-(targetLocalPosition - ballLocalPosition).sqrMagnitude);
             //reward *= Mathf.Exp(-Mathf.Pow(ballLocalPosition.y - targetLocalPosition.y, 2.0f));
             bool cond1 = target.max_x >= predictedLandingPoint.x && target.min_x <= predictedLandingPoint.x;
             bool cond2 = target.max_z >= predictedLandingPoint.z && target.min_z <= predictedLandingPoint.z;
-            if (cond1 && cond2) {
+            if (cond1 && cond2)
+            {
                 Debug.Log("Table On");
                 reward *= 1.5f;
             }
         }
-        AddReward(reward);  
+        AddReward(reward);
     }
-    
-    Vector3 PredictLandingPoint(Vector3 position, Vector3 velocity) {
+
+    Vector3 PredictLandingPoint(Vector3 position, Vector3 velocity)
+    {
         float g = Mathf.Abs(Physics.gravity.y);
         float vy = velocity.y;
         float y0 = position.y;
 
         float discriminant = vy * vy + 2 * g * y0;
-        if (discriminant < 0) {
+        if (discriminant < 0)
+        {
             return Vector3.zero;
         }
 
@@ -166,31 +173,46 @@ public class TableTennisAgent : Agent
     }
     public override void OnActionReceived(ActionBuffers actions)
     {
-        for (int i = 0; i < actions.ContinuousActions.Length; i++) {
+        for (int i = 0; i < actions.ContinuousActions.Length; i++)
+        {
             var action = Mathf.Clamp(actions.ContinuousActions[i], -1f, 1f);
             robotController.ControlTargetPosition(i, action);
         }
     }
-    public void EndEpisodeWithSave() {
+    public void EndEpisodeWithSave()
+    {
         Vector3 ballPos = ballObj.transform.position;
         Vector3 targetPos = targetObj.transform.position;
         int cbp_val = Cbp ? 1 : 0;
         int cbt_val = Cbt ? 1 : 0;
-        string line = 
-        $"{ballPos.x:F3},{ballPos.z:F3}," + 
+        string line =
+        $"{ballPos.x:F3},{ballPos.z:F3}," +
         $"{targetPos.x:F3},{targetPos.z:F3}," +
         $"{cbp_val},{cbt_val}";
 
         writer.WriteLine(line);
-        
+
         EndEpisode();
     }
     void OnApplicationQuit()
     {
-        if (writer != null) {
+        if (writer != null)
+        {
             writer.Flush();
             writer.Close();
         }
+    }
+    void resetBallState()
+    {
+        if (ballSpawnArea == null) return;
+        MeshRenderer renderer = ballSpawnArea.GetComponent<MeshRenderer>();
+        Vector3 center = renderer.bounds.center;
+        Vector3 size = renderer.bounds.size;
+        float x = UnityEngine.Random.Range(-0.5f, 0.5f) * size.x;
+        float y = UnityEngine.Random.Range(-0.5f, 0.5f) * size.y;
+        float z = UnityEngine.Random.Range(-0.5f, 0.5f) * size.z;
+        Vector3 ballNewPos = center + new Vector3(x, y, z);
+        ballObj.transform.position = ballNewPos;
     }
 
 }
