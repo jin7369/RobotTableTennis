@@ -27,16 +27,20 @@ public class TableTennisAgent : Agent
     // 공 관련
     public GameObject ballObj;
     public GameObject paddleObj;
+    public GameObject[] paddleDots;
+    public GameObject paddlePredictPos;
     public GameObject predictionPoint;
     public GameObject targetObj;
+    public float targetMaxHeight;
     public GameObject ballSpawnArea;
-
+    public GameObject ballLandingArea;
+    public GameObject netObj;
     RandomTarget target;
     public bool Cbp;
     public bool Cbt;
     public bool Pbn;
     Rigidbody ballRb;
-    
+
 
     public GameObject robot;
 
@@ -99,6 +103,7 @@ public class TableTennisAgent : Agent
         robotController = robot.GetComponent<RobotController>();
         ballRb = ballObj.GetComponent<Rigidbody>();
         resetBallState();
+        SetTargetMaxHeight();
         target = targetObj.GetComponent<RandomTarget>();
     }
 
@@ -107,8 +112,7 @@ public class TableTennisAgent : Agent
         robotController.Reset();
         target.Reset();
         resetBallState();
-        ballRb.velocity = Vector3.zero;
-        ballRb.angularVelocity = Vector3.zero;
+        SetTargetMaxHeight();
         Cbp = false;
         Cbt = false;
         predictionPoint.SetActive(false);
@@ -125,33 +129,59 @@ public class TableTennisAgent : Agent
         sensor.AddObservation(ballLocalVelocity);
         sensor.AddObservation(targetLocalPosition.x);
         sensor.AddObservation(targetLocalPosition.z);
+        sensor.AddObservation(targetMaxHeight);
         // 8차원 
         List<float> robotState = robotController.GetState();
+        float reward = 0.0f;
         foreach (float value in robotState)
         {
             sensor.AddObservation(value);
         }
         // 24차원 
-
+        if (Cbt && !Cbp)
+        {
+            if (predictPaddleCollision())
+            {
+                reward += Mathf.Exp(-10 * (paddlePredictPos.transform.position - paddleObj.transform.position).sqrMagnitude);
+            }
+        }
         // 총 32차원 
-        float reward = 0.0f;
+
         if (Cbp && !Cbt)
         {
             Vector3 predictedLandingPoint = PredictLandingPoint(ballObj.transform.position, ballRb.velocity);
             predictionPoint.SetActive(true);
             predictionPoint.transform.position = predictedLandingPoint;
-            reward = 1 + Mathf.Exp(-4 * (predictedLandingPoint - targetObj.transform.position).sqrMagnitude);
-            reward *= Mathf.Exp(-(targetLocalPosition - ballLocalPosition).sqrMagnitude);
-            //reward *= Mathf.Exp(-Mathf.Pow(ballLocalPosition.y - targetLocalPosition.y, 2.0f));
             bool cond1 = target.max_x >= predictedLandingPoint.x && target.min_x <= predictedLandingPoint.x;
             bool cond2 = target.max_z >= predictedLandingPoint.z && target.min_z <= predictedLandingPoint.z;
             if (cond1 && cond2)
             {
-                Debug.Log("Table On");
-                reward *= 1.5f;
+                reward += Mathf.Exp(-2 * (predictedLandingPoint - targetObj.transform.position).sqrMagnitude);
             }
+            else
+            {
+                reward += Mathf.Exp(-4 * (predictedLandingPoint - targetObj.transform.position).sqrMagnitude);
+            }
+            float max_height = PredictMaxHeight();
+            reward += Mathf.Exp(-10 * Mathf.Pow(max_height - targetMaxHeight, 2));
         }
+        Debug.Log(reward);
         AddReward(reward);
+    }
+    float PredictMaxHeight()
+    {
+        float g = Mathf.Abs(Physics.gravity.y);
+        float v_y = ballRb.velocity.y;
+        float p_y = ballObj.transform.position.y;
+        float predictedMaxHeight = v_y * v_y / (2 * g) + p_y;
+        return predictedMaxHeight;
+    }
+    void SetTargetMaxHeight()
+    {
+        MeshRenderer renderer = netObj.GetComponent<MeshRenderer>();
+        Vector3 center = renderer.bounds.center;
+        Vector3 size = renderer.bounds.size;
+        targetMaxHeight = center.y + size.y * 0.5f + UnityEngine.Random.Range(0.03f, 0.5f);
     }
 
     Vector3 PredictLandingPoint(Vector3 position, Vector3 velocity)
@@ -211,8 +241,51 @@ public class TableTennisAgent : Agent
         float x = UnityEngine.Random.Range(-0.5f, 0.5f) * size.x;
         float y = UnityEngine.Random.Range(-0.5f, 0.5f) * size.y;
         float z = UnityEngine.Random.Range(-0.5f, 0.5f) * size.z;
+        float g = Mathf.Abs(Physics.gravity.y);
         Vector3 ballNewPos = center + new Vector3(x, y, z);
         ballObj.transform.position = ballNewPos;
+        renderer = netObj.GetComponent<MeshRenderer>();
+        float max_height = renderer.bounds.center.y + 0.5f * renderer.bounds.size.y + UnityEngine.Random.Range(0.03f, 0.5f);
+        float v_y = Mathf.Sqrt(2 * g * Mathf.Abs(max_height - y));
+        float t = (v_y + Mathf.Sqrt(v_y * v_y + 2 * g * ballNewPos.y)) / g;
+
+        renderer = ballLandingArea.GetComponent<MeshRenderer>();
+        center = renderer.bounds.center;
+        size = renderer.bounds.size;
+        float landing_x = center.x + UnityEngine.Random.Range(-0.5f, 0.5f) * size.x;
+        float landing_z = center.z + UnityEngine.Random.Range(-0.5f, 0.5f) * size.z;
+
+        float v_x = (landing_x - ballNewPos.x) / (t + 0.001f);
+        float v_z = (landing_z - ballNewPos.z) / (t + 0.001f);
+        ballRb.velocity = new Vector3(v_x, v_y, v_z);
+    }
+    bool predictPaddleCollision()
+    {
+        Vector3 p1 = paddleDots[0].transform.position;
+        Vector3 p2 = paddleDots[1].transform.position;
+        Vector3 p3 = paddleDots[2].transform.position;
+        Vector3 p4 = paddleDots[3].transform.position;
+        Vector3 normal = Vector3.Cross(p2 - p1, p3 - p1).normalized;
+        Vector3 p = ballObj.transform.position;
+        float g = Mathf.Abs(Physics.gravity.y);
+        Vector3 v = ballRb.velocity;
+
+        float a = -0.5f * g * normal.y;
+        float b = Vector3.Dot(normal, v);
+        float c = Vector3.Dot(normal, p - p4);
+        float discriminant = b * b - 4 * a * c;
+        if (discriminant < 0)
+        {
+            return false;
+        }
+        float t1 = (-b + Mathf.Sqrt(discriminant)) / (2 * a);
+        float t2 = (-b - Mathf.Sqrt(discriminant)) / (2 * a);
+        float t = Mathf.Min(t1, t2);
+        if (t < 0) t = Mathf.Max(t1, t2);
+        if (t < 0) return false;
+        Vector3 predict_pos = p + t * v + new Vector3(0.0f, -0.5f * g * t * t, 0.0f);
+        paddlePredictPos.transform.position = predict_pos;
+        return true;
     }
 
 }

@@ -12,40 +12,26 @@ public class BallScript : MonoBehaviour
     {
         tableTennisAgent = tableTennisAgentObj.GetComponent<TableTennisAgent>();
     }
-    void Update()
-    {
-        if (transform.position.y < 0.0f) {
-            if (Application.isBatchMode) {
-                tableTennisAgent.EndEpisodeWithSave();
-            }
-            else {
-                tableTennisAgent.EndEpisode();
-            }
-        }
-    }
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Table")) {
-            //tableTennisAgent.AddReward(1.0f);
-            Debug.Log(tableTennisAgent.GetCumulativeReward());
+        if (collision.gameObject.CompareTag("Table"))
+        {
             tableTennisAgent.Cbt = true;
-            if (Application.isBatchMode) {
-                tableTennisAgent.EndEpisodeWithSave();
-            }
-            else {
-                tableTennisAgent.EndEpisode();
-            }
-
         }
-        else if (collision.gameObject.CompareTag("Paddle")) {
+        else if (collision.gameObject.CompareTag("Paddle"))
+        {
             tableTennisAgent.Cbp = true;
+            tableTennisAgent.Cbt = false;
         }
-        else {
+        else
+        {
             Debug.Log(tableTennisAgent.GetCumulativeReward());
-            if (Application.isBatchMode) {
+            if (Application.isBatchMode)
+            {
                 tableTennisAgent.EndEpisodeWithSave();
             }
-            else {
+            else
+            {
                 tableTennisAgent.EndEpisode();
             }
         }
