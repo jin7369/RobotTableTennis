@@ -54,43 +54,17 @@ public class TableTennisAgent : Agent
     {
         if (Application.isBatchMode)
         {
-            string[] args = System.Environment.GetCommandLineArgs();
-            path = null;
-            foreach (var arg in args)
-            {
-                if (arg.StartsWith("--log_path="))
-                {
-                    path = arg.Substring("--log_path=".Length).Trim();
-                }
-            }
-
-            if (string.IsNullOrEmpty(path))
-            {
-                Debug.LogError("Error: no --log_path element");
-                return;
-            }
+            path = Application.persistentDataPath;
             try
             {
                 string timestamp = DateTime.Now.ToString("yyyy_MM_dd_HH_mm");
                 string filename = $"{timestamp}_ball_state.csv";
-                string descPath = Path.Combine(path, "reward_descriptrion.txt");
-                try
-                {
-                    using (StreamWriter descWriter = new StreamWriter(descPath, append: false))
-                    {
-
-                    }
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"Fail to create reward description file {e.Message}");
-                }
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
                 }
-                path = Path.Combine(path, filename);
-                writer = new StreamWriter(path, append: false);
+                string fullPath = Path.Combine(path, filename);
+                writer = new StreamWriter(fullPath, append: false);
                 writer.WriteLine("ball_x,ball_z,target_x,target_z,cbp,cbt");
 
             }
