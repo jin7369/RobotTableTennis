@@ -38,7 +38,6 @@ public class TableTennisAgent : Agent
     RandomTarget target;
     public bool Cbp;
     public bool Cbt;
-    public bool Pbn;
     Rigidbody ballRb;
 
 
@@ -104,7 +103,7 @@ public class TableTennisAgent : Agent
         sensor.AddObservation(targetLocalPosition.x);
         sensor.AddObservation(targetLocalPosition.z);
         sensor.AddObservation(targetMaxHeight);
-        // 8차원 
+        // 9차원 
         List<float> robotState = robotController.GetState();
         float reward = 0.0f;
         foreach (float value in robotState)
@@ -119,11 +118,11 @@ public class TableTennisAgent : Agent
                 reward += Mathf.Exp(-10 * (paddlePredictPos.transform.position - paddleObj.transform.position).sqrMagnitude);
             }
         }
-        // 총 32차원 
+        // 총 33차원 
 
         if (Cbp && !Cbt)
         {
-            Vector3 predictedLandingPoint = PredictLandingPoint(ballObj.transform.position, ballRb.velocity);
+            Vector3 predictedLandingPoint = PredictLandingPoint();
             predictionPoint.SetActive(true);
             predictionPoint.transform.position = predictedLandingPoint;
             bool cond1 = target.max_x >= predictedLandingPoint.x && target.min_x <= predictedLandingPoint.x;
@@ -158,11 +157,11 @@ public class TableTennisAgent : Agent
         targetMaxHeight = center.y + size.y * 0.5f + UnityEngine.Random.Range(0.03f, 0.5f);
     }
 
-    Vector3 PredictLandingPoint(Vector3 position, Vector3 velocity)
+    Vector3 PredictLandingPoint()
     {
         float g = Mathf.Abs(Physics.gravity.y);
-        float vy = velocity.y;
-        float y0 = position.y;
+        float vy = ballRb.velocity.y;
+        float y0 = ballObj.transform.position.y;
 
         float discriminant = vy * vy + 2 * g * y0;
         if (discriminant < 0)
@@ -171,8 +170,8 @@ public class TableTennisAgent : Agent
         }
 
         float t = (vy + Mathf.Sqrt(discriminant)) / g;
-        float x = position.x + velocity.x * t;
-        float z = position.z + velocity.z * t;
+        float x = ballObj.transform.position.x + ballRb.velocity.x * t;
+        float z = ballObj.transform.position.z + ballRb.velocity.z * t;
         return new Vector3(x, 0, z);
     }
     public override void OnActionReceived(ActionBuffers actions)
