@@ -28,9 +28,11 @@ public class TableTennisAgent : Agent
     public GameObject ballObj;
     public GameObject paddleObj;
     public GameObject[] paddleDots;
-    public GameObject paddlePredictPos;
-    public GameObject predictionPoint;
+    public GameObject predCollisionWithPaddleObj;
+    public GameObject predLandingObj;
     public GameObject targetObj;
+    public GameObject targetMaxHeightObj;
+    public GameObject predMaxHeightObj;
     public float targetMaxHeight;
     public GameObject ballSpawnArea;
     public GameObject ballLandingArea;
@@ -47,10 +49,14 @@ public class TableTennisAgent : Agent
     private string path;
 
 
+    public float reward_before;
+
+
 
     RobotController robotController;
     public override void Initialize()
     {
+        reward_before = 0.0f;
         if (Application.isBatchMode)
         {
             path = Application.persistentDataPath;
@@ -82,13 +88,18 @@ public class TableTennisAgent : Agent
 
     public override void OnEpisodeBegin()
     {
+        reward_before = 0.0f;
         robotController.Reset();
         target.Reset();
         resetBallState();
         SetTargetMaxHeight();
         Cbp = false;
         Cbt = false;
-        predictionPoint.SetActive(false);
+        predLandingObj.SetActive(false);
+        predMaxHeightObj.SetActive(false);
+        Vector3 targetHeightVec = targetMaxHeightObj.transform.position;
+        targetHeightVec.y = targetMaxHeight;
+        targetMaxHeightObj.transform.position = targetHeightVec;
     }
 
     public override void CollectObservations(VectorSensor sensor)
@@ -115,31 +126,28 @@ public class TableTennisAgent : Agent
         {
             if (predictPaddleCollision())
             {
-                reward += Mathf.Exp(-10 * (paddlePredictPos.transform.position - paddleObj.transform.position).sqrMagnitude);
+                reward += Mathf.Exp(-4 * (predCollisionWithPaddleObj.transform.position - paddleObj.transform.position).sqrMagnitude);
             }
+            AddReward(reward - reward_before);
+            reward_before = reward;
         }
         // 총 33차원 
 
         if (Cbp && !Cbt)
         {
             Vector3 predictedLandingPoint = PredictLandingPoint();
-            predictionPoint.SetActive(true);
-            predictionPoint.transform.position = predictedLandingPoint;
-            bool cond1 = target.max_x >= predictedLandingPoint.x && target.min_x <= predictedLandingPoint.x;
-            bool cond2 = target.max_z >= predictedLandingPoint.z && target.min_z <= predictedLandingPoint.z;
-            if (cond1 && cond2)
-            {
-                reward += Mathf.Exp(-2 * (predictedLandingPoint - targetObj.transform.position).sqrMagnitude);
-            }
-            else
-            {
-                reward += Mathf.Exp(-4 * (predictedLandingPoint - targetObj.transform.position).sqrMagnitude);
-            }
+            predLandingObj.SetActive(true);
+            predLandingObj.transform.position = predictedLandingPoint;
+            reward += 1 + Mathf.Exp(-4 * (predictedLandingPoint - targetObj.transform.position).sqrMagnitude);
             float max_height = PredictMaxHeight();
-            reward += Mathf.Exp(-10 * Mathf.Pow(max_height - targetMaxHeight, 2));
+            predMaxHeightObj.SetActive(true);
+            predMaxHeightObj.transform.position = new Vector3(predMaxHeightObj.transform.position.x,
+                                                                max_height,
+                                                                predMaxHeightObj.transform.position.z);
+            //reward *= Mathf.Exp(-4 * Mathf.Pow(max_height - targetMaxHeight, 2));
+            AddReward(reward - reward_before);
+            reward_before = reward;
         }
-        Debug.Log(reward);
-        AddReward(reward);
     }
     float PredictMaxHeight()
     {
@@ -154,7 +162,7 @@ public class TableTennisAgent : Agent
         MeshRenderer renderer = netObj.GetComponent<MeshRenderer>();
         Vector3 center = renderer.bounds.center;
         Vector3 size = renderer.bounds.size;
-        targetMaxHeight = center.y + size.y * 0.5f + UnityEngine.Random.Range(0.03f, 0.5f);
+        targetMaxHeight = center.y + size.y * 0.5f + UnityEngine.Random.Range(0.10f, 1.5f);
     }
 
     Vector3 PredictLandingPoint()
@@ -188,6 +196,7 @@ public class TableTennisAgent : Agent
         Vector3 targetPos = targetObj.transform.position;
         int cbp_val = Cbp ? 1 : 0;
         int cbt_val = Cbt ? 1 : 0;
+        cbt_val = cbp_val * cbt_val;
         string line =
         $"{ballPos.x:F3},{ballPos.z:F3}," +
         $"{targetPos.x:F3},{targetPos.z:F3}," +
@@ -257,8 +266,9 @@ public class TableTennisAgent : Agent
         if (t < 0) t = Mathf.Max(t1, t2);
         if (t < 0) return false;
         Vector3 predict_pos = p + t * v + new Vector3(0.0f, -0.5f * g * t * t, 0.0f);
-        paddlePredictPos.transform.position = predict_pos;
+        predCollisionWithPaddleObj.transform.position = predict_pos;
         return true;
     }
+
 
 }

@@ -20,12 +20,14 @@ public class BallScript : MonoBehaviour
         }
         else if (collision.gameObject.CompareTag("Paddle"))
         {
+            //tableTennisAgent.AddReward(1.0f);
             tableTennisAgent.Cbp = true;
             tableTennisAgent.Cbt = false;
+            //tableTennisAgent.reward_before = 0.0f;
         }
         else
         {
-            Debug.Log(tableTennisAgent.GetCumulativeReward());
+            Debug.Log("Cum Reward: " + tableTennisAgent.GetCumulativeReward());
             if (Application.isBatchMode)
             {
                 tableTennisAgent.EndEpisodeWithSave();
