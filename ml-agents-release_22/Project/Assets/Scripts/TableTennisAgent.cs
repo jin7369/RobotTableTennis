@@ -7,6 +7,7 @@ using System;
 using Unity.Collections;
 using System.IO;
 using System.IO.Pipes;
+using System.Runtime.CompilerServices;
 
 
 public class TableTennisAgent : Agent
@@ -34,10 +35,10 @@ public class TableTennisAgent : Agent
     public GameObject targetMaxHeightObj;
     public GameObject predMaxHeightObj;
     public float targetMaxHeight;
-    public GameObject ballSpawnArea;
-    public GameObject ballLandingArea;
-    public GameObject netObj;
-    RandomTarget target;
+    public MeshRenderer ballSpawnArea;
+    public MeshRenderer ballLandingArea;
+    public MeshRenderer targetArea;
+    public MeshRenderer net;
     public bool Cbp;
     public bool Cbt;
     Rigidbody ballRb;
@@ -83,23 +84,22 @@ public class TableTennisAgent : Agent
         ballRb = ballObj.GetComponent<Rigidbody>();
         resetBallState();
         SetTargetMaxHeight();
-        target = targetObj.GetComponent<RandomTarget>();
     }
 
     public override void OnEpisodeBegin()
     {
         reward_before = 0.0f;
         robotController.Reset();
-        target.Reset();
         resetBallState();
         SetTargetMaxHeight();
+        SetTargetPosition();
         Cbp = false;
         Cbt = false;
         predLandingObj.SetActive(false);
         predMaxHeightObj.SetActive(false);
-        Vector3 targetHeightVec = targetMaxHeightObj.transform.position;
-        targetHeightVec.y = targetMaxHeight;
-        targetMaxHeightObj.transform.position = targetHeightVec;
+        //Vector3 targetHeightVec = targetMaxHeightObj.transform.position;
+        //targetHeightVec.y = targetMaxHeight;
+        //targetMaxHeightObj.transform.position = targetHeightVec;
     }
 
     public override void CollectObservations(VectorSensor sensor)
@@ -113,7 +113,7 @@ public class TableTennisAgent : Agent
         sensor.AddObservation(ballLocalVelocity);
         sensor.AddObservation(targetLocalPosition.x);
         sensor.AddObservation(targetLocalPosition.z);
-        sensor.AddObservation(targetMaxHeight);
+        //sensor.AddObservation(targetMaxHeight);
         // 9차원 
         List<float> robotState = robotController.GetState();
         float reward = 0.0f;
@@ -138,16 +138,33 @@ public class TableTennisAgent : Agent
             Vector3 predictedLandingPoint = PredictLandingPoint();
             predLandingObj.SetActive(true);
             predLandingObj.transform.position = predictedLandingPoint;
-            reward += 1 + Mathf.Exp(-4 * (predictedLandingPoint - targetObj.transform.position).sqrMagnitude);
-            float max_height = PredictMaxHeight();
-            predMaxHeightObj.SetActive(true);
-            predMaxHeightObj.transform.position = new Vector3(predMaxHeightObj.transform.position.x,
-                                                                max_height,
-                                                                predMaxHeightObj.transform.position.z);
-            //reward *= Mathf.Exp(-4 * Mathf.Pow(max_height - targetMaxHeight, 2));
+            float sqrDist = Vector3.SqrMagnitude(predLandingObj.transform.position - targetObj.transform.position);
+            if (CheckInTargetArea(predLandingObj.transform.position))
+            {
+                reward += 1 + Gaussian(0.5f, sqrDist);
+            }
+            else
+            {
+                reward += 1 + Gaussian(1.0f, sqrDist);
+            }
             AddReward(reward - reward_before);
             reward_before = reward;
         }
+    }
+    bool CheckInTargetArea(Vector3 position) {
+        Vector3 size = targetArea.bounds.size;
+        Vector3 center = targetArea.bounds.center;
+        bool cond1 = position.x <= center.x + size.x;
+        bool cond2 = position.x >= center.x - size.x;
+        bool cond3 = position.z <= center.z + size.z;
+        bool cond4 = position.z >= center.z - size.z;
+
+        return cond1 && cond2 && cond3 && cond4;
+    }
+    float Gaussian(float sigma, float x)
+    {
+        float g = x / sigma;
+        return Mathf.Exp(-1.0f * g * g) / (sigma * sigma);
     }
     float PredictMaxHeight()
     {
@@ -159,9 +176,8 @@ public class TableTennisAgent : Agent
     }
     void SetTargetMaxHeight()
     {
-        MeshRenderer renderer = netObj.GetComponent<MeshRenderer>();
-        Vector3 center = renderer.bounds.center;
-        Vector3 size = renderer.bounds.size;
+        Vector3 center = net.bounds.center;
+        Vector3 size = net.bounds.size;
         targetMaxHeight = center.y + size.y * 0.5f + UnityEngine.Random.Range(0.10f, 1.5f);
     }
 
@@ -180,7 +196,8 @@ public class TableTennisAgent : Agent
         float t = (vy + Mathf.Sqrt(discriminant)) / g;
         float x = ballObj.transform.position.x + ballRb.velocity.x * t;
         float z = ballObj.transform.position.z + ballRb.velocity.z * t;
-        return new Vector3(x, 0, z);
+        float y = ballObj.transform.localScale.y * 0.5f;
+        return new Vector3(x, y, z);
     }
     public override void OnActionReceived(ActionBuffers actions)
     {
@@ -216,24 +233,20 @@ public class TableTennisAgent : Agent
     }
     void resetBallState()
     {
-        if (ballSpawnArea == null) return;
-        MeshRenderer renderer = ballSpawnArea.GetComponent<MeshRenderer>();
-        Vector3 center = renderer.bounds.center;
-        Vector3 size = renderer.bounds.size;
+        Vector3 center = ballSpawnArea.bounds.center;
+        Vector3 size = ballSpawnArea.bounds.size;
         float x = UnityEngine.Random.Range(-0.5f, 0.5f) * size.x;
         float y = UnityEngine.Random.Range(-0.5f, 0.5f) * size.y;
         float z = UnityEngine.Random.Range(-0.5f, 0.5f) * size.z;
         float g = Mathf.Abs(Physics.gravity.y);
         Vector3 ballNewPos = center + new Vector3(x, y, z);
         ballObj.transform.position = ballNewPos;
-        renderer = netObj.GetComponent<MeshRenderer>();
-        float max_height = renderer.bounds.center.y + 0.5f * renderer.bounds.size.y + UnityEngine.Random.Range(0.03f, 0.5f);
+        float max_height = net.bounds.center.y + 0.5f * net.bounds.size.y + UnityEngine.Random.Range(0.03f, 0.5f);
         float v_y = Mathf.Sqrt(2 * g * Mathf.Abs(max_height - y));
         float t = (v_y + Mathf.Sqrt(v_y * v_y + 2 * g * ballNewPos.y)) / g;
 
-        renderer = ballLandingArea.GetComponent<MeshRenderer>();
-        center = renderer.bounds.center;
-        size = renderer.bounds.size;
+        center = ballLandingArea.bounds.center;
+        size = ballLandingArea.bounds.size;
         float landing_x = center.x + UnityEngine.Random.Range(-0.5f, 0.5f) * size.x;
         float landing_z = center.z + UnityEngine.Random.Range(-0.5f, 0.5f) * size.z;
 
@@ -268,6 +281,15 @@ public class TableTennisAgent : Agent
         Vector3 predict_pos = p + t * v + new Vector3(0.0f, -0.5f * g * t * t, 0.0f);
         predCollisionWithPaddleObj.transform.position = predict_pos;
         return true;
+    }
+    void SetTargetPosition()
+    {
+        Vector3 center = targetArea.bounds.center;
+        Vector3 size = targetArea.bounds.size;
+        float x = UnityEngine.Random.Range(-0.5f, 0.5f) * size.x;
+        float z = UnityEngine.Random.Range(-0.5f, 0.5f) * size.z;
+        float y = ballObj.transform.localScale.y * 0.5f;
+        targetObj.transform.position = center + new Vector3(x, y, z);
     }
 
 
