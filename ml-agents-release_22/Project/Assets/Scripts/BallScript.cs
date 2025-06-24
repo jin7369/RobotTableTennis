@@ -1,17 +1,41 @@
 using System;
 using System.Collections.Generic;
 using Unity.MLAgents;
+using Unity.MLAgents.Extensions.Input;
 using UnityEngine;
 
 public class BallScript : MonoBehaviour
 {
-    public GameObject envManagerObj;
-    EnvManager envManager;
+    public GameObject tableTennisAgentObj;
+    TableTennisAgent tableTennisAgent;
     void Start()
     {
-        envManager = envManagerObj.GetComponent<EnvManager>();   
+        tableTennisAgent = tableTennisAgentObj.GetComponent<TableTennisAgent>();
     }
-    void OnCollisionEnter(Collision collision) {
-        envManager.BallCollideWith(collision.gameObject);
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Table"))
+        {
+            tableTennisAgent.Cbt = true;
+        }
+        else if (collision.gameObject.CompareTag("Paddle"))
+        {
+            //tableTennisAgent.AddReward(1.0f);
+            tableTennisAgent.Cbp = true;
+            tableTennisAgent.Cbt = false;
+            //tableTennisAgent.reward_before = 0.0f;
+        }
+        else
+        {
+            Debug.Log("Cum Reward: " + tableTennisAgent.GetCumulativeReward());
+            if (Application.isBatchMode)
+            {
+                tableTennisAgent.EndEpisodeWithSave();
+            }
+            else
+            {
+                tableTennisAgent.EndEpisode();
+            }
+        }
     }
 }
