@@ -83,7 +83,7 @@ public class TableTennisAgent : Agent
         robotController = robot.GetComponent<RobotController>();
         ballRb = ballObj.GetComponent<Rigidbody>();
         resetBallState();
-        SetTargetMaxHeight();
+        //SetTargetMaxHeight();
     }
 
     public override void OnEpisodeBegin()
@@ -91,7 +91,7 @@ public class TableTennisAgent : Agent
         reward_before = 0.0f;
         robotController.Reset();
         resetBallState();
-        SetTargetMaxHeight();
+        //SetTargetMaxHeight();
         SetTargetPosition();
         Cbp = false;
         Cbt = false;
@@ -101,27 +101,31 @@ public class TableTennisAgent : Agent
         //targetHeightVec.y = targetMaxHeight;
         //targetMaxHeightObj.transform.position = targetHeightVec;
     }
-
-    public override void CollectObservations(VectorSensor sensor)
+    public List<float> GetState()
     {
-
+        List<float> stateList = new List<float>();
         Vector3 ballLocalPosition = transform.InverseTransformDirection(transform.position - ballObj.transform.position);
         Vector3 ballLocalVelocity = transform.InverseTransformDirection(ballRb.velocity);
         Vector3 targetLocalPosition = transform.InverseTransformDirection(transform.position - targetObj.transform.position);
+        stateList.Add(ballLocalPosition.x);
+        stateList.Add(ballLocalPosition.y);
+        stateList.Add(ballLocalPosition.z);
 
-        sensor.AddObservation(ballLocalPosition);
-        sensor.AddObservation(ballLocalVelocity);
-        sensor.AddObservation(targetLocalPosition.x);
-        sensor.AddObservation(targetLocalPosition.z);
-        //sensor.AddObservation(targetMaxHeight);
-        // 9차원 
+        stateList.Add(ballLocalVelocity.x);
+        stateList.Add(ballLocalVelocity.y);
+        stateList.Add(ballLocalVelocity.z);
+
+        stateList.Add(targetLocalPosition.x);
+        stateList.Add(targetLocalPosition.z);
         List<float> robotState = robotController.GetState();
+        stateList.AddRange(robotState);
+        return stateList;
+    }
+    public override void CollectObservations(VectorSensor sensor)
+    {
+        List<float> stateList = GetState();
+        sensor.AddObservation(stateList);
         float reward = 0.0f;
-        foreach (float value in robotState)
-        {
-            sensor.AddObservation(value);
-        }
-        // 24차원 
         if (Cbt && !Cbp)
         {
             if (predictPaddleCollision())
@@ -138,14 +142,22 @@ public class TableTennisAgent : Agent
             Vector3 predictedLandingPoint = PredictLandingPoint();
             predLandingObj.SetActive(true);
             predLandingObj.transform.position = predictedLandingPoint;
-            float sqrDist = Vector3.SqrMagnitude(predLandingObj.transform.position - targetObj.transform.position);
+        
             if (CheckInTargetArea(predLandingObj.transform.position))
             {
-                reward += 1 + Gaussian(0.5f, sqrDist);
+                float sqrDistWithTarget = Vector3.SqrMagnitude(predLandingObj.transform.position - targetObj.transform.position);
+                reward += 3.0f + Mathf.Exp(-4 * sqrDistWithTarget);
             }
             else
             {
-                reward += 1 + Gaussian(1.0f, sqrDist);
+                float sqrDistWithCenter_x = Mathf.Pow(predLandingObj.transform.position.x - targetArea.bounds.center.x, 2.0f);
+                float sqrDistWithCenter_z = Mathf.Pow(predLandingObj.transform.position.z - targetArea.bounds.center.z, 2.0f);
+                float x_length = targetArea.bounds.size.x;
+                float z_length = targetArea.bounds.size.z;
+                float ratio_x = x_length / (x_length + z_length);
+                float ratio_z = 1 - ratio_x;
+                reward += 1.0f;
+                reward += Mathf.Exp(-4 * ratio_z * sqrDistWithCenter_x) + Mathf.Exp(-4 * ratio_x * sqrDistWithCenter_z);
             }
             AddReward(reward - reward_before);
             reward_before = reward;
@@ -158,6 +170,7 @@ public class TableTennisAgent : Agent
         bool cond2 = position.x >= center.x - size.x;
         bool cond3 = position.z <= center.z + size.z;
         bool cond4 = position.z >= center.z - size.z;
+        Debug.Log("In Target Area");
 
         return cond1 && cond2 && cond3 && cond4;
     }

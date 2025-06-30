@@ -17,6 +17,17 @@ public class BallScript : MonoBehaviour
         if (collision.gameObject.CompareTag("Table"))
         {
             tableTennisAgent.Cbt = true;
+            if (tableTennisAgent.Cbt && tableTennisAgent.Cbp)
+            {
+                if (Application.isBatchMode)
+                {
+                    tableTennisAgent.EndEpisodeWithSave();
+                }
+                else
+                {
+                    tableTennisAgent.EndEpisode();
+                }
+            }
         }
         else if (collision.gameObject.CompareTag("Paddle"))
         {
