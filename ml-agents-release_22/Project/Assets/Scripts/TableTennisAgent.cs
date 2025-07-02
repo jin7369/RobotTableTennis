@@ -166,10 +166,10 @@ public class TableTennisAgent : Agent
     bool CheckInTargetArea(Vector3 position) {
         Vector3 size = targetArea.bounds.size;
         Vector3 center = targetArea.bounds.center;
-        bool cond1 = position.x <= center.x + size.x;
-        bool cond2 = position.x >= center.x - size.x;
-        bool cond3 = position.z <= center.z + size.z;
-        bool cond4 = position.z >= center.z - size.z;
+        bool cond1 = position.x <= center.x + 0.5f * size.x;
+        bool cond2 = position.x >= center.x - 0.5f * size.x;
+        bool cond3 = position.z <= center.z + 0.5f * size.z;
+        bool cond4 = position.z >= center.z - 0.5f * size.z;
         Debug.Log("In Target Area");
 
         return cond1 && cond2 && cond3 && cond4;
