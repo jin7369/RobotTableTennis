@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 
 public class TableTennisEnv : MonoBehaviour
 {
     // 에이전트 구성 요소 정의
     [System.Serializable]
-    public struct AgentElements
+    public struct AgentElement
     {
         public TableTennisAgent agent;
         public GameObject paddleObj;
@@ -18,8 +19,9 @@ public class TableTennisEnv : MonoBehaviour
         public MeshRenderer receivingAreaMesh;
         public bool ballHasCollidedWithPaddle;
         public bool ballHasCollidedWithTable;
+        float rewardBefore;
     }
-    public AgentElements[] agentElements;
+    public AgentElement[] agentElements;
 
     // 공통 구성 요소 정의
     public GameObject ballObj;
@@ -34,10 +36,7 @@ public class TableTennisEnv : MonoBehaviour
     {
         ballTargetAgentIndex = 0;
         ballRb = ballObj.GetComponent<Rigidbody>();
-
     }
-
-
 
     void ResetBallState()
     {
@@ -76,23 +75,49 @@ public class TableTennisEnv : MonoBehaviour
 
     bool PredictPaddleCollision(int agentNum)
     {
-        float ballRadius = 0.02f;
-        float collisionThreshold = 0.1f;
-        Vector3 normal = agentElements[agentNum].paddleObj.transform.right;
-        Vector3 pointOnPlane = agentElements[agentNum].paddleObj.transform.position;
-        float D = -Vector3.Dot(normal, pointOnPlane);
-        float planeValue = Vector3.Dot(normal, ballObj.transform.position) + D;
-        bool ballTrajectoryOnPaddlePlane = Mathf.Abs(planeValue) < ballRadius + collisionThreshold;
-        if (!ballTrajectoryOnPaddlePlane)
-        {
-            return false;
-        }
+        AgentElement agentElement = agentElements[agentNum];
+        Vector3 normal = agentElement.paddleObj.transform.right;
+        Vector3 pointOnPlane = agentElement.paddleObj.transform.position;
         float g = Mathf.Abs(Physics.gravity.y);
         float a = -0.5f * g * normal.y;
         float b = Vector3.Dot(normal, ballRb.velocity);
+        float c = Vector3.Dot(normal, ballObj.transform.position - pointOnPlane);
+        float discriminant = b * b - 4 * a * c;
+        if (discriminant < 0 || a == 0) return false;
 
-
+        float divisor = 2 * a;
+        float t1 = (-b - Mathf.Sqrt(discriminant)) / divisor;
+        float t2 = (-b + Mathf.Sqrt(discriminant)) / divisor;
+        float t = Mathf.Min(t1, t2);
+        if (t < 0) t = Mathf.Max(t1, t2);
+        if (t < 0) return false;
+        Vector3 pred_pos = ballObj.transform.position;
+        pred_pos += t * ballRb.velocity;
+        pred_pos += new Vector3(0.0f, -0.5f * g * t * t, 0.0f);
+        agentElement.predCollisionWithPaddleObj.SetActive(true);
+        agentElement.predCollisionWithPaddleObj.transform.position = pred_pos;
         return true;
+    }
+
+    float GetReward(int agentNum)
+    {
+        AgentElement agentElement = agentElements[agentNum];
+        if (!agentElement.ballHasCollidedWithPaddle)
+        {
+            if (PredictPaddleCollision(agentNum))
+            {
+                Vector3 predPos = agentElement.predCollisionWithPaddleObj.transform.position;
+                Vector3 paddlePos = agentElement.paddleObj.transform.position;
+                float sqrDist = (predPos - paddlePos).sqrMagnitude;
+                float theta = -4.0f;
+                float reward = Mathf.Exp(theta * sqrDist);
+            }
+        }
+        if (agentElement.ballHasCollidedWithPaddle && !agentElement.ballHasCollidedWithTable)
+        {
+
+        }
+        return 0.0f;
     }
     
 }
